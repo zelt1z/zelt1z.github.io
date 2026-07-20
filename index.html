@@ -147,6 +147,7 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+    align-items: center;
   }
 
   .formation-bar {
@@ -186,12 +187,13 @@
     border-radius: 18px;
     overflow: hidden;
     box-shadow: var(--shadow);
+    background-color: #1e7a3d;
     background: repeating-linear-gradient(
       to bottom,
-      var(--pitch-1) 0,
-      var(--pitch-1) 10%,
-      var(--pitch-2) 10%,
-      var(--pitch-2) 20%
+      #1e7a3d 0,
+      #1e7a3d 10%,
+      #1a6d36 10%,
+      #1a6d36 20%
     );
   }
   
@@ -269,20 +271,19 @@
   }
 
   .slot-name {
-    font-size: 15px;
+    font-size: 13px; /* Slightly smaller to fit more text */
     font-weight: 800;
     color: #ffffff;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    -webkit-text-stroke: 3.5px #0a0e0b;
+    letter-spacing: 0.3px;
+    -webkit-text-stroke: 2px #0a0e0b; /* Thinned stroke for better readability */
     paint-order: stroke fill;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
     margin-top: 2px;
-    max-width: 110px;
+    width: 140px; /* Increased width */
     text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.2;
+    word-wrap: break-word; /* Allows long words to break onto a new line */
   }
 
   .remove-x {
@@ -306,6 +307,29 @@
   .empty-icon {
     font-size: 22px;
     color: rgba(255,255,255,0.7);
+  }
+
+  /* Download Button placed outside under pitch */
+  .download-btn {
+    margin-top: 4px;
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .download-btn:hover {
+    background: #252e29;
+    border-color: var(--accent);
   }
 
   .roster-panel {
@@ -434,32 +458,6 @@
 
   .hint-bar b { color: var(--ink); }
 
-  /* New Download Button Styles */
-  .download-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 10;
-    background: var(--panel);
-    color: var(--ink);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    transition: all 0.15s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .download-btn:hover {
-    background: #252e29;
-    border-color: var(--accent);
-  }
-
   @media (max-width: 880px) {
     main { flex-direction: column; }
     .roster-panel {
@@ -494,32 +492,31 @@
 <main>
   <div class="pitch-column">
     <div class="pitch-wrap" id="pitchWrap">
-      
-      <!-- New Download Button -->
-      <button class="download-btn" id="downloadBtn" data-html2canvas-ignore="true">
-        📸 Save Pitch
-      </button>
-
       <img src="logo.png" alt="Logo" class="pitch-logo">
 
       <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
-        <rect x="4" y="4" width="292" height="392" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <line x1="4" y1="200" x2="296" y2="200" stroke="var(--pitch-line)" stroke-width="2"/>
-        <circle cx="150" cy="200" r="36" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <circle cx="150" cy="200" r="2" fill="var(--pitch-line)"/>
-        <rect x="70" y="4" width="160" height="55" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <rect x="110" y="4" width="80" height="22" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <rect x="70" y="341" width="160" height="55" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <rect x="110" y="374" width="80" height="22" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
+        <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <circle cx="150" cy="200" r="2" fill="rgba(255,255,255,0.85)"/>
+        <rect x="70" y="4" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <rect x="110" y="4" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <rect x="70" y="341" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <rect x="110" y="374" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
       </svg>
       <div id="slotsLayer"></div>
     </div>
+
+    <!-- Button located under the pitch -->
+    <button class="download-btn" id="downloadBtn">
+      📸 Save Pitch Image
+    </button>
   </div>
 
   <aside class="roster-panel">
@@ -854,25 +851,17 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// New Download Button Logic
+// Download Pitch Handler
 document.getElementById("downloadBtn").onclick = () => {
   const pitchElement = document.getElementById("pitchWrap");
   
-  // Temporarily change border-radius to 0 for a clean rectangular screenshot
-  const originalRadius = pitchElement.style.borderRadius;
-  pitchElement.style.borderRadius = "0px";
-
   html2canvas(pitchElement, {
-    useCORS: true, // Allows loading external images (like avatars)
-    backgroundColor: null, 
-    scale: 2 // Increases the resolution of the downloaded image
+    useCORS: true,
+    backgroundColor: "#1e7a3d", // Ensures crisp green background on export
+    scale: 2
   }).then(canvas => {
-    // Restore the rounded corners on the UI
-    pitchElement.style.borderRadius = originalRadius;
-
-    // Create a temporary link to download the image
     const link = document.createElement("a");
-    link.download = "my-lineup.png";
+    link.download = "lineup.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   });
