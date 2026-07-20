@@ -6,15 +6,14 @@
 <title>Squad Builder</title>
 <style>
   :root{
-    /* Dark theme color palette */
     --pitch-1: #1e7a3d;
     --pitch-2: #1a6d36;
     --pitch-line: rgba(255,255,255,0.85);
-    --ink: #e8ede9; /* Light text */
-    --paper: #121614; /* Dark main background */
-    --panel: #1a201d; /* Dark panel background */
-    --panel-border: #2c3630; /* Dark borders */
-    --muted: #8b9991; /* Lighter gray for secondary text */
+    --ink: #e8ede9;
+    --paper: #121614;
+    --panel: #1a201d;
+    --panel-border: #2c3630;
+    --muted: #8b9991;
     --main-team: #f2c94c;
     --accent: #2e9e54;
     --accent-dark: #1e7a3d;
@@ -31,7 +30,7 @@
     background: var(--paper);
     color: var(--ink);
     font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
-    color-scheme: dark; /* Helps native elements like dropdowns use dark mode */
+    color-scheme: dark;
   }
 
   body {
@@ -140,8 +139,6 @@
     align-items: flex-start;
   }
 
-  /* ---------------- PITCH AREA ---------------- */
-
   .pitch-column {
     flex: 1;
     min-width: 0;
@@ -196,15 +193,14 @@
     );
   }
   
-  /* Top Left Image */
   .pitch-logo {
     position: absolute;
     top: 16px;
     left: 16px;
-    width: 95px; /* Increased from 75px */
+    width: 95px;
     height: auto;
-    z-index: 1; /* Sits below the player slots */
-    opacity: 0.85; /* Slight transparency to blend better */
+    z-index: 1;
+    opacity: 0.85;
   }
 
   svg.pitch-lines {
@@ -262,7 +258,7 @@
   }
 
   .slot-pos {
-    font-size: 15px; /* Increased from 13px */
+    font-size: 15px;
     font-weight: 800;
     color: rgba(255,255,255,0.85);
     letter-spacing: 0.5px;
@@ -271,28 +267,21 @@
   }
 
   .slot-name {
-  font-size: 15px;
-  font-weight: 800; /* Extra bold makes the fill clear */
-  color: #ffffff;
-  text-transform: uppercase; /* Uppercase reads faster on a pitch */
-  letter-spacing: 0.5px;
-  
-  /* 1. Strong black outline rendered BEHIND the text */
-  -webkit-text-stroke: 3.5px #0a0e0b;
-  paint-order: stroke fill;
-  
-  /* 2. Heavy soft shadow underneath to lift it off pitch lines */
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-  
-  margin-top: 2px;
-  max-width: 110px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-  /* .slot-name.main-team was removed so it defaults to white on pitch */
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    -webkit-text-stroke: 3.5px #0a0e0b;
+    paint-order: stroke fill;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+    margin-top: 2px;
+    max-width: 110px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   .remove-x {
     position: absolute;
@@ -316,8 +305,6 @@
     font-size: 22px;
     color: rgba(255,255,255,0.7);
   }
-
-  /* ---------------- ROSTER PANEL ---------------- */
 
   .roster-panel {
     width: 300px;
@@ -391,11 +378,11 @@
   }
 
   .roster-item:hover {
-    background: #232c26; /* Dark hover */
+    background: #232c26;
   }
 
   .roster-item.selected {
-    background: #1e3625; /* Dark selected state */
+    background: #1e3625;
     border-color: var(--accent);
   }
 
@@ -427,7 +414,6 @@
     text-overflow: ellipsis;
   }
 
-  /* Keeps main team yellow in the roster panel */
   .roster-name.main-team { color: #dcb336; } 
 
   .roster-tag {
@@ -481,7 +467,6 @@
   <div class="pitch-column">
     <div class="pitch-wrap" id="pitchWrap">
         
-      <!-- MEDIUM SIZED IMAGE IN THE TOP LEFT -->
       <img src="logo.png" alt="Logo" class="pitch-logo">
 
       <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
@@ -489,15 +474,12 @@
         <line x1="4" y1="200" x2="296" y2="200" stroke="var(--pitch-line)" stroke-width="2"/>
         <circle cx="150" cy="200" r="36" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
         <circle cx="150" cy="200" r="2" fill="var(--pitch-line)"/>
-        <!-- top box -->
         <rect x="70" y="4" width="160" height="55" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
         <rect x="110" y="4" width="80" height="22" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
         <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <!-- bottom box -->
         <rect x="70" y="341" width="160" height="55" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
         <rect x="110" y="374" width="80" height="22" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
         <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
-        <!-- corners -->
         <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
         <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
         <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="var(--pitch-line)" stroke-width="2"/>
@@ -524,11 +506,6 @@
 </main>
 
 <script>
-/* ---------------------------------------------------------------
-   DATA
---------------------------------------------------------------- */
-
-// Formation definitions per player count (includes GK in the count).
 const FORMATIONS = {
   5: [
     { key: "1-2-1", rows: [1, 2, 1] },
@@ -580,19 +557,11 @@ const FORMATIONS = {
   ],
 };
 
-/* ---------------------------------------------------------------
-   STATE
---------------------------------------------------------------- */
-
 let players = [];           
 let playerCount = 7;
 let formationKey = FORMATIONS[7][0].key;
 let assignments = {};       
 let selectedPlayerId = null;
-
-/* ---------------------------------------------------------------
-   LAYOUT HELPERS
---------------------------------------------------------------- */
 
 function buildSlots(rows) {
   const slots = [];
@@ -639,10 +608,6 @@ function computeCoords(rows) {
   return coords;
 }
 
-/* ---------------------------------------------------------------
-   RENDER: CONTROLS
---------------------------------------------------------------- */
-
 function renderPlayerCountOptions() {
   const sel = document.getElementById("playerCount");
   sel.innerHTML = "";
@@ -666,10 +631,6 @@ function renderFormationOptions() {
     sel.appendChild(opt);
   });
 }
-
-/* ---------------------------------------------------------------
-   RENDER: PITCH
---------------------------------------------------------------- */
 
 function currentFormation() {
   return FORMATIONS[playerCount].find(f => f.key === formationKey) || FORMATIONS[playerCount][0];
@@ -777,10 +738,6 @@ function onSlotClick(slotId) {
   }
 }
 
-/* ---------------------------------------------------------------
-   RENDER: ROSTER PANEL
---------------------------------------------------------------- */
-
 function renderRoster() {
   const list = document.getElementById("rosterList");
   const query = document.getElementById("rosterSearch").value.trim().toLowerCase();
@@ -833,10 +790,6 @@ function renderRoster() {
     });
 }
 
-/* ---------------------------------------------------------------
-   EVENTS
---------------------------------------------------------------- */
-
 document.getElementById("playerCount").onchange = (e) => {
   playerCount = Number(e.target.value);
   formationKey = FORMATIONS[playerCount][0].key;
@@ -868,15 +821,10 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/* ---------------------------------------------------------------
-   INIT
---------------------------------------------------------------- */
-
 async function init() {
   try {
     const res = await fetch('players.json');
     const data = await res.json();
-    // Assign unique IDs dynamically based on the fetched data
     players = data.map((p, i) => ({ id: "p" + i, ...p }));
   } catch (error) {
     console.error("Could not load players.json:", error);
