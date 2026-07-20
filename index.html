@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Squad Builder</title>
+<!-- html2canvas Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
     --pitch-1: #1e7a3d;
@@ -432,6 +434,32 @@
 
   .hint-bar b { color: var(--ink); }
 
+  /* New Download Button Styles */
+  .download-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .download-btn:hover {
+    background: #252e29;
+    border-color: var(--accent);
+  }
+
   @media (max-width: 880px) {
     main { flex-direction: column; }
     .roster-panel {
@@ -466,7 +494,12 @@
 <main>
   <div class="pitch-column">
     <div class="pitch-wrap" id="pitchWrap">
-        
+      
+      <!-- New Download Button -->
+      <button class="download-btn" id="downloadBtn" data-html2canvas-ignore="true">
+        📸 Save Pitch
+      </button>
+
       <img src="logo.png" alt="Logo" class="pitch-logo">
 
       <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
@@ -820,6 +853,30 @@ document.addEventListener("keydown", (e) => {
     if (selectedPlayerId) { selectedPlayerId = null; renderRoster(); renderPitch(); }
   }
 });
+
+// New Download Button Logic
+document.getElementById("downloadBtn").onclick = () => {
+  const pitchElement = document.getElementById("pitchWrap");
+  
+  // Temporarily change border-radius to 0 for a clean rectangular screenshot
+  const originalRadius = pitchElement.style.borderRadius;
+  pitchElement.style.borderRadius = "0px";
+
+  html2canvas(pitchElement, {
+    useCORS: true, // Allows loading external images (like avatars)
+    backgroundColor: null, 
+    scale: 2 // Increases the resolution of the downloaded image
+  }).then(canvas => {
+    // Restore the rounded corners on the UI
+    pitchElement.style.borderRadius = originalRadius;
+
+    // Create a temporary link to download the image
+    const link = document.createElement("a");
+    link.download = "my-lineup.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+};
 
 async function init() {
   try {
