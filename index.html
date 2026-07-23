@@ -178,22 +178,157 @@
     color: #fff;
   }
 
+  .capture-area {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .bench-wrap {
+    position: relative;
+    width: 130px;
+    flex-shrink: 0;
+    max-height: 80vh;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: linear-gradient(180deg, #1a201d 0%, #141917 100%);
+    border: 1px solid var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 8px;
+    gap: 8px;
+  }
+
+  .bench-title {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+
+  .bench-slots {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+  }
+
+  .bench-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    width: 100%;
+  }
+
+  .bench-badge {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--slot-empty);
+    border: 3px dashed var(--slot-empty-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bench-slot.filled .bench-badge {
+    border-style: solid;
+    background: #10230f;
+  }
+
+  .bench-slot.filled .bench-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .bench-slot:hover .bench-badge {
+    transform: scale(1.08);
+    border-color: #fff;
+  }
+
+  .bench-slot.pickable .bench-badge {
+    border-color: var(--main-team);
+    box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.35);
+  }
+
+  .bench-empty-icon {
+    font-size: 24px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .bench-slot-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    -webkit-text-stroke: 2px #0a0e0b;
+    paint-order: stroke fill;
+    margin-top: 4px;
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.1;
+    word-wrap: break-word;
+  }
+
+  .bench-remove-x {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #d13b3b;
+    color: #fff;
+    font-size: 13px;
+    line-height: 20px;
+    text-align: center;
+    display: none;
+    z-index: 3;
+  }
+
+  .bench-slot.filled:hover .bench-remove-x { display: block; }
+
   .pitch-wrap {
     position: relative;
-    width: 86%;
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    max-height: 80vh;
     aspect-ratio: 3 / 4;
-    max-height: 78vh;
     margin: 0 auto;
     border-radius: 18px;
     overflow: hidden;
     box-shadow: var(--shadow);
     background-color: #1e7a3d;
-    background: repeating-linear-gradient(
+    background: linear-gradient(
       to bottom,
-      #1e7a3d 0,
-      #1e7a3d 10%,
-      #1a6d36 10%,
-      #1a6d36 20%
+      #1e7a3d 0%, #1e7a3d 10%,
+      #1a6d36 10%, #1a6d36 20%,
+      #1e7a3d 20%, #1e7a3d 30%,
+      #1a6d36 30%, #1a6d36 40%,
+      #1e7a3d 40%, #1e7a3d 50%,
+      #1a6d36 50%, #1a6d36 60%,
+      #1e7a3d 60%, #1e7a3d 70%,
+      #1a6d36 70%, #1a6d36 80%,
+      #1e7a3d 80%, #1e7a3d 90%,
+      #1a6d36 90%, #1a6d36 100%
     );
   }
   
@@ -466,6 +601,15 @@
       max-height: 420px;
     }
     .pitch-wrap { max-height: none; }
+    .bench-wrap { max-height: none; width: 100px; }
+  }
+
+  @media (max-width: 560px) {
+    .capture-area { gap: 8px; }
+    .bench-wrap { width: 76px; padding: 8px 4px; }
+    .bench-badge { width: 44px; height: 44px; }
+    .bench-slot-name { font-size: 8.5px; -webkit-text-stroke: 1.4px #0a0e0b; }
+    .bench-title { font-size: 9.5px; }
   }
 </style>
 </head>
@@ -499,27 +643,34 @@
 
 <main>
   <div class="pitch-column">
-    <div class="pitch-wrap" id="pitchWrap">
-      <!-- ADDED ID HERE -->
-      <img src="logo.png" alt="Logo" class="pitch-logo" id="pitchLogo">
+    <div class="capture-area" id="captureArea">
+      <div class="bench-wrap" id="benchWrap">
+        <div class="bench-title">Bench</div>
+        <div class="bench-slots" id="benchSlotsLayer"></div>
+      </div>
 
-      <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
-        <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <circle cx="150" cy="200" r="2" fill="rgba(255,255,255,0.85)"/>
-        <rect x="70" y="4" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <rect x="110" y="4" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <rect x="70" y="341" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <rect x="110" y="374" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-      </svg>
-      <div id="slotsLayer"></div>
+      <div class="pitch-wrap" id="pitchWrap">
+        <!-- ADDED ID HERE -->
+        <img src="logo.png" alt="Logo" class="pitch-logo" id="pitchLogo">
+
+        <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
+          <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <circle cx="150" cy="200" r="2" fill="rgba(255,255,255,0.85)"/>
+          <rect x="70" y="4" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <rect x="110" y="4" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <rect x="70" y="341" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <rect x="110" y="374" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+        </svg>
+        <div id="slotsLayer"></div>
+      </div>
     </div>
 
     <button class="download-btn" id="downloadBtn">
@@ -599,6 +750,7 @@ let players = [];
 let playerCount = 7;
 let formationKey = FORMATIONS[7][0].key;
 let assignments = {};       
+let benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null };
 let selectedPlayerId = null;
 
 function buildSlots(rows) {
@@ -756,6 +908,96 @@ function renderPitch() {
   });
 }
 
+function renderBench() {
+  const layer = document.getElementById("benchSlotsLayer");
+  layer.innerHTML = "";
+
+  const benchIds = ["B0", "B1", "B2", "B3", "B4"];
+
+  benchIds.forEach(slotId => {
+    const div = document.createElement("div");
+    div.className = "bench-slot";
+    div.tabIndex = 0;
+    div.setAttribute("role", "button");
+    div.setAttribute("aria-label", "Bench slot");
+
+    const playerId = benchAssignments[slotId];
+    const player = playerId ? players.find(p => p.id === playerId) : null;
+
+    const badge = document.createElement("div");
+    badge.className = "bench-badge";
+
+    if (player) {
+      div.classList.add("filled");
+      if (player.avatar) {
+        const img = document.createElement("img");
+        img.src = player.avatar;
+        img.alt = player.name;
+        img.onerror = () => { img.style.display = "none"; badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize = "13px"; };
+        badge.appendChild(img);
+      } else {
+        badge.textContent = initials(player.name);
+        badge.style.color = "#fff";
+        badge.style.fontWeight = "700";
+        badge.style.fontSize = "13px";
+      }
+      const removeX = document.createElement("div");
+      removeX.className = "bench-remove-x";
+      removeX.textContent = "×";
+      removeX.title = "Remove from bench";
+      removeX.onclick = (e) => {
+        e.stopPropagation();
+        benchAssignments[slotId] = null;
+        renderBench();
+        renderRoster();
+      };
+      div.appendChild(removeX);
+    } else {
+      const icon = document.createElement("div");
+      icon.className = "bench-empty-icon";
+      icon.textContent = "+";
+      badge.appendChild(icon);
+      if (selectedPlayerId) div.classList.add("pickable");
+    }
+
+    div.appendChild(badge);
+
+    if (player) {
+      const nameLabel = document.createElement("div");
+      nameLabel.className = "bench-slot-name";
+      nameLabel.textContent = player.name;
+      div.appendChild(nameLabel);
+    }
+
+    div.onclick = () => onBenchSlotClick(slotId);
+    div.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onBenchSlotClick(slotId); } };
+
+    layer.appendChild(div);
+  });
+}
+
+function onBenchSlotClick(slotId) {
+  if (selectedPlayerId) {
+    Object.keys(assignments).forEach(sid => {
+      if (assignments[sid] === selectedPlayerId) delete assignments[sid];
+    });
+    Object.keys(benchAssignments).forEach(sid => {
+      if (benchAssignments[sid] === selectedPlayerId) benchAssignments[sid] = null;
+    });
+    benchAssignments[slotId] = selectedPlayerId;
+    selectedPlayerId = null;
+    renderPitch();
+    renderBench();
+    renderRoster();
+  } else if (benchAssignments[slotId]) {
+    selectedPlayerId = benchAssignments[slotId];
+    benchAssignments[slotId] = null;
+    renderPitch();
+    renderBench();
+    renderRoster();
+  }
+}
+
 function initials(name) {
   return name.trim().split(/\s+/).map(w => w[0]).join("").slice(0,2).toUpperCase();
 }
@@ -765,14 +1007,19 @@ function onSlotClick(slotId) {
     Object.keys(assignments).forEach(sid => {
       if (assignments[sid] === selectedPlayerId) delete assignments[sid];
     });
+    Object.keys(benchAssignments).forEach(sid => {
+      if (benchAssignments[sid] === selectedPlayerId) benchAssignments[sid] = null;
+    });
     assignments[slotId] = selectedPlayerId;
     selectedPlayerId = null;
     renderPitch();
+    renderBench();
     renderRoster();
   } else if (assignments[slotId]) {
     selectedPlayerId = assignments[slotId];
     delete assignments[slotId];
     renderPitch();
+    renderBench();
     renderRoster();
   }
 }
@@ -782,7 +1029,8 @@ function renderRoster() {
   const query = document.getElementById("rosterSearch").value.trim().toLowerCase();
   list.innerHTML = "";
 
-  const placedIds = new Set(Object.values(assignments));
+  const placedIds = new Set([...Object.values(assignments), ...Object.values(benchAssignments).filter(Boolean)]);
+  const benchIds = new Set(Object.values(benchAssignments).filter(Boolean));
 
   const sorted = [...players].sort((a, b) => {
     if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1;
@@ -811,7 +1059,7 @@ function renderRoster() {
       nameEl.textContent = p.name;
       const tagEl = document.createElement("div");
       tagEl.className = "roster-tag";
-      tagEl.textContent = placedIds.has(p.id) ? "On pitch" : (p.mainTeam ? "Main Team" : "Squad");
+      tagEl.textContent = benchIds.has(p.id) ? "On bench" : (placedIds.has(p.id) ? "On pitch" : (p.mainTeam ? "Main Team" : "Squad"));
       info.appendChild(nameEl);
       info.appendChild(tagEl);
 
@@ -840,6 +1088,7 @@ document.getElementById("playerCount").onchange = (e) => {
   assignments = {};
   renderFormationOptions();
   renderPitch();
+  renderBench();
   renderRoster();
 };
 
@@ -847,13 +1096,16 @@ document.getElementById("formationSelect").onchange = (e) => {
   formationKey = e.target.value;
   assignments = {};
   renderPitch();
+  renderBench();
   renderRoster();
 };
 
 document.getElementById("clearBtn").onclick = () => {
   assignments = {};
+  benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null };
   selectedPlayerId = null;
   renderPitch();
+  renderBench();
   renderRoster();
 };
 
@@ -861,17 +1113,24 @@ document.getElementById("rosterSearch").oninput = renderRoster;
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    if (selectedPlayerId) { selectedPlayerId = null; renderRoster(); renderPitch(); }
+    if (selectedPlayerId) { selectedPlayerId = null; renderRoster(); renderPitch(); renderBench(); }
   }
 });
 
 document.getElementById("downloadBtn").onclick = () => {
-  const pitchElement = document.getElementById("pitchWrap");
-  
-  html2canvas(pitchElement, {
+  const captureElement = document.getElementById("captureArea");
+
+  html2canvas(captureElement, {
     useCORS: true,
-    backgroundColor: "#1e7a3d",
-    scale: 2
+    backgroundColor: "#121614",
+    scale: 2,
+    onclone: (clonedDoc) => {
+      const clonedPitch = clonedDoc.getElementById("pitchWrap");
+      if (clonedPitch) {
+        clonedPitch.style.background =
+          "linear-gradient(to bottom, #1e7a3d 0%, #1e7a3d 10%, #1a6d36 10%, #1a6d36 20%, #1e7a3d 20%, #1e7a3d 30%, #1a6d36 30%, #1a6d36 40%, #1e7a3d 40%, #1e7a3d 50%, #1a6d36 50%, #1a6d36 60%, #1e7a3d 60%, #1e7a3d 70%, #1a6d36 70%, #1a6d36 80%, #1e7a3d 80%, #1e7a3d 90%, #1a6d36 90%, #1a6d36 100%)";
+      }
+    }
   }).then(canvas => {
     const link = document.createElement("a");
     link.download = "lineup.png";
@@ -893,6 +1152,7 @@ async function init() {
   renderPlayerCountOptions();
   renderFormationOptions();
   renderPitch();
+  renderBench();
   renderRoster();
 }
 
