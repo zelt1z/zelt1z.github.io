@@ -271,7 +271,7 @@
   }
 
   .slot-name {
-    font-size: 15px; /* Kept original size */
+    font-size: 15px;
     font-weight: 800;
     color: #ffffff;
     text-transform: uppercase;
@@ -280,10 +280,10 @@
     paint-order: stroke fill;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
     margin-top: 2px;
-    width: 160px; /* Increased width significantly so more text fits horizontally */
+    width: 160px;
     text-align: center;
-    white-space: normal; /* Allows text to wrap to a new line if it's super long */
-    line-height: 1.1; /* Keeps multi-line text tight together */
+    white-space: normal;
+    line-height: 1.1;
     word-wrap: break-word;
   }
 
@@ -310,7 +310,6 @@
     color: rgba(255,255,255,0.7);
   }
 
-  /* Download Button placed outside under pitch */
   .download-btn {
     margin-top: 4px;
     background: var(--panel);
@@ -478,6 +477,14 @@
     <span class="sub">Lineup planner</span>
   </div>
   <div class="controls">
+    <!-- NEW LOGO SELECTOR DROPDOWN -->
+    <div class="control-group">
+      <label for="logoSelect">Team</label>
+      <select id="logoSelect">
+        <option value="logo.png">AFC Bournemouth</option>
+        <option value="england.png">England</option>
+      </select>
+    </div>
     <div class="control-group">
       <label for="playerCount">Players</label>
       <select id="playerCount"></select>
@@ -493,7 +500,8 @@
 <main>
   <div class="pitch-column">
     <div class="pitch-wrap" id="pitchWrap">
-      <img src="logo.png" alt="Logo" class="pitch-logo">
+      <!-- ADDED ID HERE -->
+      <img src="logo.png" alt="Logo" class="pitch-logo" id="pitchLogo">
 
       <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
         <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
@@ -514,7 +522,6 @@
       <div id="slotsLayer"></div>
     </div>
 
-    <!-- Button located under the pitch -->
     <button class="download-btn" id="downloadBtn">
       📸 Save Pitch Image
     </button>
@@ -821,6 +828,11 @@ function renderRoster() {
     });
 }
 
+// LOGO DROPDOWN EVENT LISTENER
+document.getElementById("logoSelect").onchange = (e) => {
+  document.getElementById("pitchLogo").src = e.target.value;
+};
+
 document.getElementById("playerCount").onchange = (e) => {
   playerCount = Number(e.target.value);
   formationKey = FORMATIONS[playerCount][0].key;
@@ -852,13 +864,12 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Download Pitch Handler
 document.getElementById("downloadBtn").onclick = () => {
   const pitchElement = document.getElementById("pitchWrap");
   
   html2canvas(pitchElement, {
     useCORS: true,
-    backgroundColor: "#1e7a3d", // Ensures crisp green background on export
+    backgroundColor: "#1e7a3d",
     scale: 2
   }).then(canvas => {
     const link = document.createElement("a");
