@@ -217,7 +217,7 @@
   .slot {
     position: absolute;
     transform: translate(-50%, -50%);
-    width: 76px;
+    width: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -227,11 +227,11 @@
   }
 
   .slot-badge {
-    width: 58px;
-    height: 58px;
+    width: 78px;
+    height: 78px;
     border-radius: 50%;
     background: var(--slot-empty);
-    border: 2px dashed var(--slot-empty-border);
+    border: 3px dashed var(--slot-empty-border);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -258,20 +258,20 @@
 
   .slot.pickable .slot-badge {
     border-color: var(--main-team);
-    box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.35);
+    box-shadow: 0 0 0 4px rgba(242, 201, 76, 0.35);
   }
 
   .slot-pos {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 800;
     color: rgba(255,255,255,0.85);
     letter-spacing: 0.5px;
-    margin-top: 2px;
+    margin-top: 3px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.6);
   }
 
   .slot-name {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 800;
     color: #ffffff;
     text-transform: uppercase;
@@ -280,7 +280,7 @@
     paint-order: stroke fill;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
     margin-top: 2px;
-    width: 160px;
+    width: 170px;
     text-align: center;
     white-space: normal;
     line-height: 1.1;
@@ -289,15 +289,15 @@
 
   .remove-x {
     position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 18px;
-    height: 18px;
+    top: -2px;
+    right: -2px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: #d13b3b;
     color: #fff;
-    font-size: 12px;
-    line-height: 18px;
+    font-size: 14px;
+    line-height: 22px;
     text-align: center;
     display: none;
     z-index: 3;
@@ -306,7 +306,7 @@
   .slot.filled:hover .remove-x { display: block; }
 
   .empty-icon {
-    font-size: 22px;
+    font-size: 32px;
     color: rgba(255,255,255,0.7);
   }
 
@@ -630,10 +630,10 @@ function rowLabel(rowIndex, totalRows) {
 function computeCoords(rows) {
   const totalRows = rows.length;
   const coords = {};
-  coords["GK"] = { x: 150, y: 372 };
+  coords["GK"] = { x: 150, y: 360 };
 
-  const yNearGK = 300;
-  const yFarFromGK = 55;
+  const yNearGK = 290;
+  const yFarFromGK = 65;
   rows.forEach((count, rowIndex) => {
     const y = totalRows === 1
       ? (yNearGK + yFarFromGK) / 2
@@ -708,12 +708,13 @@ function renderPitch() {
         const img = document.createElement("img");
         img.src = player.avatar;
         img.alt = player.name;
-        img.onerror = () => { img.style.display = "none"; badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize="16px"; };
+        img.onerror = () => { img.style.display = "none"; badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize="20px"; };
         badge.appendChild(img);
       } else {
         badge.textContent = initials(player.name);
         badge.style.color = "#fff";
         badge.style.fontWeight = "700";
+        badge.style.fontSize = "20px";
       }
       const removeX = document.createElement("div");
       removeX.className = "remove-x";
