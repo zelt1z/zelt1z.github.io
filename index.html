@@ -16,7 +16,7 @@
     --panel: #1a201d;
     --panel-border: #2c3630;
     --muted: #8b9991;
-    --main-team: #f2c94c;
+    --main-team: #6cd4f2;
     --accent: #2e9e54;
     --slot-empty: rgba(0,0,0,0.3);
     --slot-empty-border: rgba(255,255,255,0.4);
@@ -85,7 +85,7 @@
   }
 
   .pitch-column {
-    flex: 1;
+    flex: 2.4;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -108,9 +108,10 @@
 
   /* Bench Layout */
   .bench-wrap {
+    order: -1; /* Visually places bench on the left, before the pitch */
     position: relative;
     height: 100%; /* Matches pitch height natively */
-    width: 120px;
+    width: 132px;
     flex-shrink: 0;
     border-radius: 14px;
     overflow: hidden;
@@ -133,27 +134,37 @@
   .bench-slot.filled .bench-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
   .bench-empty-icon { font-size: 24px; color: rgba(255,255,255,0.7); }
-  .bench-slot-name { font-size: 10.5px; font-weight: 800; color: #ffffff; text-transform: uppercase; margin-top: 4px; text-align: center; line-height: 1.1; word-wrap: break-word; -webkit-text-stroke: 2px #0a0e0b; paint-order: stroke fill;}
+  .bench-slot-name { font-size: 10.5px; font-weight: 800; color: var(--main-team); text-transform: uppercase; margin-top: 4px; text-align: center; line-height: 1.1; word-wrap: break-word; -webkit-text-stroke: 2px #0a0e0b; paint-order: stroke fill;}
 
   /* Pitch Layout */
   .pitch-wrap {
     position: relative;
-    height: 100%; /* Scales dynamically to available screen height */
+    height: calc(100% - 54px); /* Leaves clean room above for the logo banner */
+    margin-top: 54px;
     width: auto;
-    aspect-ratio: 3 / 4; /* Keeps exact proportions natively */
+    max-width: 100%;
+    aspect-ratio: 4 / 5; /* Wider than before so the pitch fills more of the available space */
     border-radius: 18px;
-    overflow: hidden;
+    overflow: visible; /* Allows the logo to sit above the pitch without being clipped */
     box-shadow: var(--shadow);
     background: #1a6d36; /* Removed CSS Gradient to fix Canvas Crash */
+  }
+
+  .pitch-surface {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    overflow: hidden; /* Keeps the actual pitch stripes/lines/players clipped to the rounded rect */
   }
   
   .pitch-watermark {
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 240px; height: auto;
-    z-index: 1; opacity: 0.15;
-    pointer-events: none; filter: grayscale(20%);
+    top: -54px; left: 50%;
+    transform: translateX(-50%);
+    width: 76px; height: 76px;
+    object-fit: contain;
+    z-index: 1; opacity: 1;
+    pointer-events: none;
   }
 
   svg.pitch-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
@@ -174,10 +185,10 @@
   .empty-icon { font-size: 32px; color: rgba(255,255,255,0.7); }
   
   .slot-pos { font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.85); margin-top: 3px; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
-  .slot-name { font-size: 16px; font-weight: 800; color: #ffffff; text-transform: uppercase; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); margin-top: 2px; text-align: center; line-height: 1.1; -webkit-text-stroke: 3.5px #0a0e0b; paint-order: stroke fill; }
+  .slot-name { font-size: 16px; font-weight: 800; color: var(--main-team); text-transform: uppercase; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); margin-top: 2px; text-align: center; line-height: 1.1; -webkit-text-stroke: 3.5px #0a0e0b; paint-order: stroke fill; }
   .slot-name.main-team { color: var(--main-team); } 
 
-  .cap-badge { position: absolute; bottom: -2px; right: -2px; width: 24px; height: 24px; background: var(--main-team); border: 2px solid #000; color: #000; font-size: 13px; font-weight: 900; line-height: 20px; text-align: center; border-radius: 6px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+  .cap-badge { position: absolute; bottom: -2px; right: -2px; width: 24px; height: 24px; background: #14181b; border: 2px solid #fff; color: #fff; font-size: 13px; font-weight: 900; line-height: 20px; text-align: center; border-radius: 6px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.6); text-shadow: 0 0 3px rgba(0,0,0,0.6); }
 
   .remove-x, .bench-remove-x { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 14px; line-height: 22px; text-align: center; display: none; z-index: 6; }
   .slot.filled:hover .remove-x, .bench-slot.filled:hover .bench-remove-x { display: block; }
@@ -220,29 +231,32 @@
     top: 50% !important; left: 50% !important;
     transform: translate(-50%, -50%) !important;
     z-index: 9999 !important;
-    flex-direction: column !important;
-    width: 650px !important;
+    flex-direction: row !important; /* Bench + pitch side by side, so nothing gets cropped */
+    width: 860px !important;
     height: auto !important;
     padding: 24px !important;
     background: #121614 !important;
     border-radius: 18px !important;
-    align-items: center !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
   }
   .export-mode .pitch-wrap {
     width: 600px !important;
-    height: 800px !important;
+    height: 750px !important;
+    margin-top: 54px !important;
     aspect-ratio: auto !important;
   }
   .export-mode .bench-wrap {
-    width: 600px !important;
-    height: auto !important;
-    flex-direction: row !important;
-    padding: 16px !important;
+    order: -1 !important;
+    width: 140px !important;
+    height: 804px !important;
+    flex-direction: column !important;
+    padding: 14px 8px !important;
   }
   .export-mode .bench-slots {
-    flex-direction: row !important;
-    gap: 15px !important;
-    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    justify-content: space-evenly !important;
   }
   .export-mode .remove-x, .export-mode .bench-remove-x { display: none !important; }
 
@@ -306,47 +320,49 @@
     <div class="capture-area" id="captureArea">
       
       <div class="pitch-wrap" id="pitchWrap">
-        <!-- Center Watermark instead of top left -->
+        <!-- Logo now sits centered above the pitch, fully visible instead of clipped inside it -->
         <img src="logo.png" alt="Logo" class="pitch-watermark" id="pitchLogo">
 
-        <!-- Match Overlay Texts -->
-        <div class="match-overlay">
-          <div class="m-title" id="outName">Manchester City vs Opponent</div>
-          <div class="m-type" id="outType">League Game</div>
-          <div class="m-time" id="outTime">8:00 PM UK TIME</div>
+        <div class="pitch-surface">
+          <!-- Match Overlay Texts -->
+          <div class="match-overlay">
+            <div class="m-title" id="outName">Manchester City vs Opponent</div>
+            <div class="m-type" id="outType">League Game</div>
+            <div class="m-time" id="outTime">8:00 PM UK TIME</div>
+          </div>
+
+          <div class="manager-sig">Manager: Naseem</div>
+
+          <!-- 
+            SVG PITCH WITH BUILT-IN STRIPES
+            This replaces CSS background gradients, 100% fixing the canvas crash.
+          -->
+          <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
+            <g>
+              <rect x="0" y="0" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="80" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="160" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="240" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="320" width="300" height="40" fill="#1e7a3d" />
+            </g>
+            
+            <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <circle cx="150" cy="200" r="2" fill="rgba(255,255,255,0.85)"/>
+            <rect x="70" y="4" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <rect x="110" y="4" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <rect x="70" y="341" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <rect x="110" y="374" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          </svg>
+          <div id="slotsLayer"></div>
         </div>
-
-        <div class="manager-sig">Manager: Naseem</div>
-
-        <!-- 
-          SVG PITCH WITH BUILT-IN STRIPES
-          This replaces CSS background gradients, 100% fixing the canvas crash.
-        -->
-        <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
-          <g>
-            <rect x="0" y="0" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="80" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="160" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="240" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="320" width="300" height="40" fill="#1e7a3d" />
-          </g>
-          
-          <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <circle cx="150" cy="200" r="2" fill="rgba(255,255,255,0.85)"/>
-          <rect x="70" y="4" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <rect x="110" y="4" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <rect x="70" y="341" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <rect x="110" y="374" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        </svg>
-        <div id="slotsLayer"></div>
       </div>
 
       <div class="bench-wrap" id="benchWrap">
@@ -681,12 +697,18 @@ document.getElementById("downloadBtn").onclick = async () => {
   const btn = document.getElementById("downloadBtn");
   btn.textContent = "⏳ Saving...";
   const canvas = await generateCanvas();
+  const teamName = document.getElementById("logoSelect").selectedOptions[0].textContent.trim().replace(/\s+/g, "-").toLowerCase();
   const link = document.createElement("a");
-  link.download = "lineup.png";
+  link.download = teamName + "-lineup.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
   btn.textContent = "📸 Save Image";
 };
+
+// Absolute URL helper so the logo works as the webhook avatar_url (Discord needs a full URL, not a relative path)
+function absoluteUrl(path) {
+  try { return new URL(path, window.location.href).href; } catch(e) { return path; }
+}
 
 document.getElementById("discordBtn").onclick = async () => {
   const webhookUrl = document.getElementById("webhookUrl").value.trim();
@@ -701,21 +723,59 @@ document.getElementById("discordBtn").onclick = async () => {
     const canvas = await generateCanvas();
     canvas.toBlob(async (blob) => {
       const formData = new FormData();
-      formData.append('file', blob, 'lineup.png');
-      
-      const embedPayload = {
-        embeds: [{
-          title: "Manchester City | Lineup",
-          color: 7124206, // City Blue
-          image: { url: "attachment://lineup.png" }
-        }]
+      formData.append('files[0]', blob, 'lineup.png');
+
+      const teamName = document.getElementById("logoSelect").selectedOptions[0].textContent.trim();
+      const logoUrl = absoluteUrl(document.getElementById("pitchLogo").src);
+      const matchName = document.getElementById("outName").textContent;
+      const matchType = document.getElementById("outType").textContent;
+      const matchTime = document.getElementById("outTime").textContent;
+
+      // Discord Components V2 payload.
+      // IS_COMPONENTS_V2 flag = 1 << 15 = 32768
+      // When using Components V2, top-level "content"/"embeds" are dropped in favor of "components",
+      // and each component needs its own numeric "type" (Container=17, Text Display=10, Media Gallery=12, Separator=14).
+      const payload = {
+        username: teamName + " | Lineup Bot",
+        avatar_url: logoUrl,
+        flags: 32768,
+        components: [
+          {
+            type: 17, // Container
+            accent_color: 7124206, // City sky blue
+            components: [
+              { type: 10, content: "## " + teamName + " | Lineup" },
+              { type: 10, content: "**" + matchName + "**\n" + matchType + " • " + matchTime },
+              { type: 14 }, // Separator
+              {
+                type: 12, // Media Gallery
+                items: [ { media: { url: "attachment://lineup.png" } } ]
+              }
+            ]
+          }
+        ]
       };
-      formData.append('payload_json', JSON.stringify(embedPayload));
+      formData.append('payload_json', JSON.stringify(payload));
 
       const res = await fetch(webhookUrl, { method: 'POST', body: formData });
-      if(res.ok) alert("✅ Successfully sent to Discord!");
-      else alert("❌ Failed to send to Discord. Check your webhook URL.");
-      
+      if(res.ok) {
+        alert("✅ Successfully sent to Discord!");
+      } else {
+        // Fall back to classic embed if the server doesn't support Components V2 (older webhook edge-cases)
+        const errText = await res.text().catch(() => "");
+        console.warn("Components V2 send failed, falling back to embed:", errText);
+        const fallbackForm = new FormData();
+        fallbackForm.append('file', blob, 'lineup.png');
+        fallbackForm.append('payload_json', JSON.stringify({
+          username: teamName + " | Lineup Bot",
+          avatar_url: logoUrl,
+          embeds: [{ title: teamName + " | Lineup", description: matchName + "\n" + matchType + " • " + matchTime, color: 7124206, image: { url: "attachment://lineup.png" } }]
+        }));
+        const fallbackRes = await fetch(webhookUrl, { method: 'POST', body: fallbackForm });
+        if(fallbackRes.ok) alert("✅ Sent to Discord (classic embed fallback).");
+        else alert("❌ Failed to send to Discord. Check your webhook URL.");
+      }
+
       btn.innerHTML = ogText;
       btn.disabled = false;
     });
