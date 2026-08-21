@@ -18,7 +18,6 @@
     --muted: #8b9991;
     --main-team: #f2c94c;
     --accent: #2e9e54;
-    --accent-dark: #1e7a3d;
     --slot-empty: rgba(0,0,0,0.3);
     --slot-empty-border: rgba(255,255,255,0.4);
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -26,6 +25,10 @@
 
   * { box-sizing: border-box; }
 
+  /* 
+    LOCKED VIEWPORT 
+    This guarantees no vertical scrolling regardless of screen size.
+  */
   html, body {
     margin: 0;
     padding: 0;
@@ -33,96 +36,39 @@
     color: var(--ink);
     font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
     color-scheme: dark;
+    height: 100vh;
+    overflow: hidden; 
   }
 
   body {
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
 
   /* Toolbar styling */
   header {
-    padding: 16px 24px;
+    padding: 12px 24px;
     display: flex;
     flex-direction: column;
     background: var(--panel);
     border-bottom: 1px solid var(--panel-border);
     gap: 12px;
+    flex-shrink: 0;
   }
 
-  .header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .brand {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-
-  .brand h1 {
-    font-size: 19px;
-    margin: 0;
-    letter-spacing: 0.2px;
-    font-weight: 700;
-  }
-
-  .controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .control-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--paper);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-    padding: 4px 10px;
-  }
-
-  .control-group label {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
-
-  .control-group input[type="text"], select {
-    border: none;
-    background: transparent;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    padding: 4px 2px;
-    cursor: text;
-    outline: none;
-    width: 140px;
-  }
+  .header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand h1 { font-size: 19px; margin: 0; letter-spacing: 0.2px; font-weight: 700; }
+  
+  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .control-group { display: flex; align-items: center; gap: 8px; background: var(--paper); border: 1px solid var(--panel-border); border-radius: 8px; padding: 4px 10px; }
+  .control-group label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+  .control-group input[type="text"], select { border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--ink); padding: 4px 2px; cursor: text; outline: none; width: 140px; }
   
   select { cursor: pointer; width: auto; }
   select option { background-color: var(--panel); color: var(--ink); font-weight: 600; }
 
-  button.ghost, button.action-btn {
-    border: 1px solid var(--panel-border);
-    background: var(--panel);
-    color: var(--ink);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
+  button.ghost, button.action-btn { border: 1px solid var(--panel-border); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
   button.ghost:hover { background: #252e29; border-color: #3d4a42; }
 
   button.action-btn.discord { background: #5865F2; border-color: #5865F2; color: #fff; display: flex; align-items: center; gap: 6px; }
@@ -133,8 +79,9 @@
     flex: 1;
     display: flex;
     gap: 20px;
-    padding: 20px 24px 28px;
-    align-items: flex-start;
+    padding: 16px 24px 20px;
+    align-items: stretch;
+    min-height: 0; /* Critical to allow shrinking */
   }
 
   .pitch-column {
@@ -142,30 +89,33 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
     align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 0;
   }
 
   .capture-area {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     justify-content: center;
     gap: 16px;
     width: 100%;
-    padding: 10px;
-    border-radius: 20px;
+    flex: 1;
+    min-height: 0;
     transition: all 0s;
   }
 
   /* Bench Layout */
   .bench-wrap {
     position: relative;
-    width: 130px;
+    height: 100%; /* Matches pitch height natively */
+    width: 120px;
     flex-shrink: 0;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    background: linear-gradient(180deg, #1a201d 0%, #141917 100%);
+    background: #161c19; /* Removed gradient to prevent crash */
     border: 1px solid var(--panel-border);
     display: flex;
     flex-direction: column;
@@ -174,23 +124,11 @@
     gap: 8px;
   }
 
-  .bench-title {
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.8px;
-    color: var(--muted);
-    text-transform: uppercase;
-    text-align: center;
-    margin-bottom: 2px;
-  }
-
+  .bench-title { font-size: 12px; font-weight: 800; letter-spacing: 0.8px; color: var(--muted); text-transform: uppercase; text-align: center; margin-bottom: 2px; }
   .bench-slots { display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; flex: 1; width: 100%; gap: 10px;}
   .bench-slot { display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; width: 100%; }
 
-  .bench-badge {
-    width: 64px; height: 64px; border-radius: 50%; background: var(--slot-empty); border: 3px dashed var(--slot-empty-border);
-    display: flex; align-items: center; justify-content: center; position: relative;
-  }
+  .bench-badge { width: 56px; height: 56px; border-radius: 50%; background: var(--slot-empty); border: 2px dashed var(--slot-empty-border); display: flex; align-items: center; justify-content: center; position: relative; }
   .bench-slot.filled .bench-badge { border-style: solid; background: #10230f; }
   .bench-slot.filled .bench-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
@@ -200,94 +138,58 @@
   /* Pitch Layout */
   .pitch-wrap {
     position: relative;
-    flex: 1 1 0;
-    width: 0;
-    min-width: 0;
-    aspect-ratio: 3 / 4;
-    margin: 0 auto;
+    height: 100%; /* Scales dynamically to available screen height */
+    width: auto;
+    aspect-ratio: 3 / 4; /* Keeps exact proportions natively */
     border-radius: 18px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    background: linear-gradient( to bottom, #1e7a3d 0%, #1e7a3d 10%, #1a6d36 10%, #1a6d36 20%, #1e7a3d 20%, #1e7a3d 30%, #1a6d36 30%, #1a6d36 40%, #1e7a3d 40%, #1e7a3d 50%, #1a6d36 50%, #1a6d36 60%, #1e7a3d 60%, #1e7a3d 70%, #1a6d36 70%, #1a6d36 80%, #1e7a3d 80%, #1e7a3d 90%, #1a6d36 90%, #1a6d36 100% );
+    background: #1a6d36; /* Removed CSS Gradient to fix Canvas Crash */
   }
   
-  /* NEW: Center Watermark Logo */
   .pitch-watermark {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     width: 240px; height: auto;
-    z-index: 1;
-    opacity: 0.15;
-    pointer-events: none;
-    filter: grayscale(20%);
+    z-index: 1; opacity: 0.15;
+    pointer-events: none; filter: grayscale(20%);
   }
 
   svg.pitch-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 
-  /* NEW: Match Overlay Texts */
-  .match-overlay {
-    position: absolute;
-    top: 15px; left: 0; width: 100%;
-    text-align: center;
-    z-index: 3;
-    pointer-events: none;
-    display: flex; flex-direction: column; gap: 2px;
-  }
+  .match-overlay { position: absolute; top: 15px; left: 0; width: 100%; text-align: center; z-index: 3; pointer-events: none; display: flex; flex-direction: column; gap: 2px; }
   .match-overlay .m-title { font-size: 19px; font-weight: 900; color: #fff; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
   .match-overlay .m-type { font-size: 13px; font-weight: 800; color: var(--main-team); text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.9); letter-spacing: 1px; }
   .match-overlay .m-time { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
 
-  /* NEW: Manager Signature */
-  .manager-sig {
-    position: absolute;
-    bottom: 12px; right: 16px;
-    font-size: 13px; font-weight: 800;
-    color: rgba(255,255,255,0.6);
-    z-index: 3; pointer-events: none;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
+  .manager-sig { position: absolute; bottom: 12px; right: 16px; font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.6); z-index: 3; pointer-events: none; text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* Player Slots on Pitch */
   .slot { position: absolute; transform: translate(-50%, -50%); width: 100px; display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; z-index: 4; }
-  .slot-badge { width: 78px; height: 78px; border-radius: 50%; background: var(--slot-empty); border: 3px dashed var(--slot-empty-border); display: flex; align-items: center; justify-content: center; position: relative; }
+  .slot-badge { width: 72px; height: 72px; border-radius: 50%; background: var(--slot-empty); border: 2px dashed var(--slot-empty-border); display: flex; align-items: center; justify-content: center; position: relative; }
   .slot.filled .slot-badge { border-style: solid; background: #10230f; }
   .slot.filled .slot-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%;}
   
   .empty-icon { font-size: 32px; color: rgba(255,255,255,0.7); }
   
-  .slot-pos { font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.85); margin-top: 3px; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
-  .slot-name { font-size: 17px; font-weight: 800; color: #ffffff; text-transform: uppercase; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); margin-top: 2px; text-align: center; line-height: 1.1; -webkit-text-stroke: 3.5px #0a0e0b; paint-order: stroke fill; }
+  .slot-pos { font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.85); margin-top: 3px; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+  .slot-name { font-size: 16px; font-weight: 800; color: #ffffff; text-transform: uppercase; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); margin-top: 2px; text-align: center; line-height: 1.1; -webkit-text-stroke: 3.5px #0a0e0b; paint-order: stroke fill; }
   .slot-name.main-team { color: var(--main-team); } 
 
-  /* NEW: Captain & VC Badges */
-  .cap-badge {
-    position: absolute;
-    bottom: -2px; right: -2px;
-    width: 26px; height: 26px;
-    background: var(--main-team);
-    border: 2px solid #000;
-    color: #000;
-    font-size: 14px; font-weight: 900;
-    line-height: 22px; text-align: center;
-    border-radius: 6px;
-    z-index: 5;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.6);
-  }
+  .cap-badge { position: absolute; bottom: -2px; right: -2px; width: 24px; height: 24px; background: var(--main-team); border: 2px solid #000; color: #000; font-size: 13px; font-weight: 900; line-height: 20px; text-align: center; border-radius: 6px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
 
-  .remove-x, .bench-remove-x {
-    position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 14px; line-height: 22px; text-align: center; display: none; z-index: 6;
-  }
+  .remove-x, .bench-remove-x { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 14px; line-height: 22px; text-align: center; display: none; z-index: 6; }
   .slot.filled:hover .remove-x, .bench-slot.filled:hover .bench-remove-x { display: block; }
 
   /* Export Action Buttons */
-  .actions-row { display: flex; gap: 12px; margin-top: 4px; }
+  .actions-row { display: flex; gap: 12px; margin-top: 4px; flex-shrink: 0;}
   .download-btn { background: var(--panel); color: var(--ink); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
   .download-btn:hover { background: #252e29; border-color: var(--accent); }
 
   /* Roster Panel */
-  .roster-panel { width: 300px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; display: flex; flex-direction: column; max-height: calc(100vh - 150px); position: sticky; top: 20px; }
-  .roster-header { padding: 16px 16px 10px; border-bottom: 1px solid var(--panel-border); }
+  .roster-panel { width: 300px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; display: flex; flex-direction: column; height: 100%; }
+  .roster-header { padding: 16px 16px 10px; border-bottom: 1px solid var(--panel-border); flex-shrink: 0;}
   .roster-header h2 { margin: 0 0 8px; font-size: 15px; }
   
   .add-player-row { display: flex; gap: 6px; margin-bottom: 10px; }
@@ -306,26 +208,41 @@
   .roster-name.main-team { color: #dcb336; } 
   .roster-tag { font-size: 10.5px; color: var(--muted); }
 
-  .hint-bar { padding: 10px 16px; border-top: 1px solid var(--panel-border); font-size: 12px; color: var(--muted); background: var(--paper); border-radius: 0 0 14px 14px; text-align: center; }
+  .hint-bar { padding: 10px 16px; border-top: 1px solid var(--panel-border); font-size: 12px; color: var(--muted); background: var(--paper); border-radius: 0 0 14px 14px; text-align: center; flex-shrink: 0;}
 
-  /* NEW: Export Mode - Reorganizes layout for a clean Discord output */
+  /* 
+    STRICT EXPORT MODE
+    Takes element out of flow and forces fixed pixel sizes.
+    Guarantees html2canvas parses a perfect image without NaN errors.
+  */
   .export-mode {
+    position: fixed !important;
+    top: 50% !important; left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 9999 !important;
     flex-direction: column !important;
-    align-items: center !important;
-    background: #121614 !important;
+    width: 650px !important;
+    height: auto !important;
     padding: 24px !important;
-    width: auto !important;
-    border-radius: 0 !important;
+    background: #121614 !important;
+    border-radius: 18px !important;
+    align-items: center !important;
+  }
+  .export-mode .pitch-wrap {
+    width: 600px !important;
+    height: 800px !important;
+    aspect-ratio: auto !important;
   }
   .export-mode .bench-wrap {
-    width: 100% !important;
+    width: 600px !important;
+    height: auto !important;
     flex-direction: row !important;
-    max-height: none !important;
-    padding: 14px 20px !important;
+    padding: 16px !important;
   }
   .export-mode .bench-slots {
     flex-direction: row !important;
-    gap: 20px !important;
+    gap: 15px !important;
+    justify-content: center !important;
   }
   .export-mode .remove-x, .export-mode .bench-remove-x { display: none !important; }
 
@@ -399,10 +316,21 @@
           <div class="m-time" id="outTime">8:00 PM UK TIME</div>
         </div>
 
-        <!-- Manager Signature -->
         <div class="manager-sig">Manager: Naseem</div>
 
+        <!-- 
+          SVG PITCH WITH BUILT-IN STRIPES
+          This replaces CSS background gradients, 100% fixing the canvas crash.
+        -->
         <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
+          <g>
+            <rect x="0" y="0" width="300" height="40" fill="#1e7a3d" />
+            <rect x="0" y="80" width="300" height="40" fill="#1e7a3d" />
+            <rect x="0" y="160" width="300" height="40" fill="#1e7a3d" />
+            <rect x="0" y="240" width="300" height="40" fill="#1e7a3d" />
+            <rect x="0" y="320" width="300" height="40" fill="#1e7a3d" />
+          </g>
+          
           <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
           <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
           <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
@@ -689,7 +617,7 @@ function renderRoster() {
     });
 }
 
-// Live Roblox Avatar API call using proxy
+// Live Roblox Avatar API call
 document.getElementById("addRobloxBtn").onclick = async () => {
   const input = document.getElementById('newRobloxUser');
   const name = input.value.trim();
@@ -727,22 +655,25 @@ document.getElementById("formationSelect").onchange = (e) => { formationKey = e.
 document.getElementById("clearBtn").onclick = () => { assignments = {}; roles = {}; benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null }; selectedPlayerId = null; renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("rosterSearch").oninput = renderRoster;
 
-// Helper logic for capturing the clean UI
+// EXPORT FUNCTION: Forces fixed dimensions for bug-free html2canvas capture
 async function generateCanvas() {
   const captureElement = document.getElementById("captureArea");
+  
+  // Snap into strict export sizing
   captureElement.classList.add('export-mode');
-  // Wait for browser to recalculate styles
-  await new Promise(r => setTimeout(r, 100));
+  
+  // A brief timeout allows the browser to re-paint the DOM fully before canvas reads it
+  await new Promise(r => setTimeout(r, 150));
   
   const canvas = await html2canvas(captureElement, {
-    useCORS: true, backgroundColor: "#121614", scale: 2,
-    onclone: (clonedDoc) => {
-      const clonedPitch = clonedDoc.getElementById("pitchWrap");
-      if (clonedPitch) clonedPitch.style.background = "linear-gradient(to bottom, #1e7a3d 0%, #1e7a3d 10%, #1a6d36 10%, #1a6d36 20%, #1e7a3d 20%, #1e7a3d 30%, #1a6d36 30%, #1a6d36 40%, #1e7a3d 40%, #1e7a3d 50%, #1a6d36 50%, #1a6d36 60%, #1e7a3d 60%, #1e7a3d 70%, #1a6d36 70%, #1a6d36 80%, #1e7a3d 80%, #1e7a3d 90%, #1a6d36 90%, #1a6d36 100%)";
-    }
+    useCORS: true, 
+    backgroundColor: "#121614", 
+    scale: 2
   });
   
+  // Return to normal responsive UI
   captureElement.classList.remove('export-mode');
+  
   return canvas;
 }
 
