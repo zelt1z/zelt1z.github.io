@@ -156,7 +156,8 @@
     width: 46%; height: auto;
     max-width: 320px;
     object-fit: contain;
-    z-index: 1; opacity: 0.22; /* Blended into the turf like a real pitch crest */
+    z-index: 3; /* Sits above the striped turf SVG so the crest reads as one solid image, not sliced by the stripes */
+    opacity: 0.22; /* Blended into the turf like a real pitch crest */
     pointer-events: none;
     filter: drop-shadow(0 2px 10px rgba(0,0,0,0.35));
   }
@@ -182,7 +183,7 @@
   .slot-name { font-size: 16px; font-weight: 800; color: var(--main-team); text-transform: uppercase; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); margin-top: 2px; text-align: center; line-height: 1.1; -webkit-text-stroke: 3.5px #0a0e0b; paint-order: stroke fill; }
   .slot-name.main-team { color: var(--main-team); } 
 
-  .cap-badge { position: absolute; bottom: -2px; right: -2px; width: 24px; height: 24px; background: #14181b; border: 2px solid #fff; color: #fff; font-size: 13px; font-weight: 900; line-height: 20px; text-align: center; border-radius: 6px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.6); text-shadow: 0 0 3px rgba(0,0,0,0.6); }
+  .cap-badge { position: absolute; bottom: -2px; right: -2px; width: 24px; height: 24px; background: #f2b90c; border: 2px solid #fff; color: #fff; font-size: 13px; font-weight: 900; line-height: 20px; text-align: center; border-radius: 6px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.6); text-shadow: 0 0 3px rgba(0,0,0,0.75); }
 
   .remove-x, .bench-remove-x { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 14px; line-height: 22px; text-align: center; display: none; z-index: 6; }
   .slot.filled:hover .remove-x, .bench-slot.filled:hover .bench-remove-x { display: block; }
@@ -221,18 +222,19 @@
     Guarantees html2canvas parses a perfect image without NaN errors.
   */
   .export-mode {
-    position: fixed !important;
-    top: 50% !important; left: 50% !important;
-    transform: translate(-50%, -50%) !important;
+    position: absolute !important;
+    top: 0 !important; left: 0 !important;
+    transform: none !important;
     z-index: 9999 !important;
     flex-direction: row !important; /* Bench + pitch side by side, so nothing gets cropped */
     width: 860px !important;
-    height: auto !important;
+    height: 808px !important;
     padding: 24px !important;
     background: #121614 !important;
     border-radius: 18px !important;
     align-items: flex-start !important;
     justify-content: center !important;
+    box-sizing: border-box !important;
   }
   .export-mode .pitch-wrap {
     width: 600px !important;
@@ -665,22 +667,35 @@ document.getElementById("rosterSearch").oninput = renderRoster;
 // EXPORT FUNCTION: Forces fixed dimensions for bug-free html2canvas capture
 async function generateCanvas() {
   const captureElement = document.getElementById("captureArea");
-  
+
   // Snap into strict export sizing
   captureElement.classList.add('export-mode');
-  
+
   // A brief timeout allows the browser to re-paint the DOM fully before canvas reads it
   await new Promise(r => setTimeout(r, 150));
-  
+
+  // Scroll to the very top-left so the fixed export box (top:0; left:0) lines up with (0,0)
+  // in the viewport — otherwise html2canvas can capture the wrong region if the page was scrolled.
+  window.scrollTo(0, 0);
+  await new Promise(r => setTimeout(r, 50));
+
+  const rect = captureElement.getBoundingClientRect();
+
   const canvas = await html2canvas(captureElement, {
-    useCORS: true, 
-    backgroundColor: "#121614", 
-    scale: 2
+    useCORS: true,
+    backgroundColor: "#121614",
+    scale: 2,
+    x: rect.left,
+    y: rect.top,
+    width: rect.width,
+    height: rect.height,
+    windowWidth: document.documentElement.scrollWidth,
+    windowHeight: document.documentElement.scrollHeight
   });
-  
+
   // Return to normal responsive UI
   captureElement.classList.remove('export-mode');
-  
+
   return canvas;
 }
 
