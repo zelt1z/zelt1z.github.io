@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Squad Builder</title>
+<title>Squad Builder - Pro Edition</title>
 <!-- html2canvas Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -41,13 +41,20 @@
     flex-direction: column;
   }
 
+  /* Toolbar styling */
   header {
-    padding: 18px 24px;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border-bottom: 1px solid var(--panel-border);
+    gap: 12px;
+  }
+
+  .header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--panel);
-    border-bottom: 1px solid var(--panel-border);
     gap: 16px;
     flex-wrap: wrap;
   }
@@ -65,11 +72,6 @@
     font-weight: 700;
   }
 
-  .brand span.sub {
-    font-size: 12.5px;
-    color: var(--muted);
-  }
-
   .controls {
     display: flex;
     align-items: center;
@@ -83,40 +85,34 @@
     gap: 8px;
     background: var(--paper);
     border: 1px solid var(--panel-border);
-    border-radius: 10px;
-    padding: 6px 10px;
+    border-radius: 8px;
+    padding: 4px 10px;
   }
 
   .control-group label {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--muted);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
   }
 
-  select {
+  .control-group input[type="text"], select {
     border: none;
     background: transparent;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--ink);
     padding: 4px 2px;
-    cursor: pointer;
+    cursor: text;
+    outline: none;
+    width: 140px;
   }
+  
+  select { cursor: pointer; width: auto; }
+  select option { background-color: var(--panel); color: var(--ink); font-weight: 600; }
 
-  select option {
-    background-color: var(--panel);
-    color: var(--ink);
-    font-weight: 600;
-  }
-
-  select:focus, button:focus, .roster-item:focus, .slot:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  button.ghost {
+  button.ghost, button.action-btn {
     border: 1px solid var(--panel-border);
     background: var(--panel);
     color: var(--ink);
@@ -125,14 +121,14 @@
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: all 0.15s ease;
   }
+  button.ghost:hover { background: #252e29; border-color: #3d4a42; }
 
-  button.ghost:hover {
-    background: #252e29;
-    border-color: #3d4a42;
-  }
+  button.action-btn.discord { background: #5865F2; border-color: #5865F2; color: #fff; display: flex; align-items: center; gap: 6px; }
+  button.action-btn.discord:hover { background: #4752C4; }
 
+  /* Main Layout */
   main {
     flex: 1;
     display: flex;
@@ -150,47 +146,22 @@
     align-items: center;
   }
 
-  .formation-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .formation-chip {
-    border: 1px solid var(--panel-border);
-    background: var(--panel);
-    color: var(--ink);
-    border-radius: 999px;
-    padding: 7px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: all 0.15s ease;
-  }
-
-  .formation-chip:hover { border-color: var(--accent); }
-
-  .formation-chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
   .capture-area {
     display: flex;
     align-items: stretch;
     justify-content: center;
     gap: 16px;
     width: 100%;
+    padding: 10px;
+    border-radius: 20px;
+    transition: all 0s;
   }
 
+  /* Bench Layout */
   .bench-wrap {
     position: relative;
     width: 130px;
     flex-shrink: 0;
-    max-height: 80vh;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: var(--shadow);
@@ -213,445 +184,223 @@
     margin-bottom: 2px;
   }
 
-  .bench-slots {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-    flex: 1;
-    width: 100%;
-  }
-
-  .bench-slot {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    width: 100%;
-  }
+  .bench-slots { display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; flex: 1; width: 100%; gap: 10px;}
+  .bench-slot { display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; width: 100%; }
 
   .bench-badge {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: var(--slot-empty);
-    border: 3px dashed var(--slot-empty-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
-    overflow: hidden;
-    position: relative;
+    width: 64px; height: 64px; border-radius: 50%; background: var(--slot-empty); border: 3px dashed var(--slot-empty-border);
+    display: flex; align-items: center; justify-content: center; position: relative;
   }
+  .bench-slot.filled .bench-badge { border-style: solid; background: #10230f; }
+  .bench-slot.filled .bench-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-  .bench-slot.filled .bench-badge {
-    border-style: solid;
-    background: #10230f;
-  }
+  .bench-empty-icon { font-size: 24px; color: rgba(255,255,255,0.7); }
+  .bench-slot-name { font-size: 10.5px; font-weight: 800; color: #ffffff; text-transform: uppercase; margin-top: 4px; text-align: center; line-height: 1.1; word-wrap: break-word; -webkit-text-stroke: 2px #0a0e0b; paint-order: stroke fill;}
 
-  .bench-slot.filled .bench-badge img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .bench-slot:hover .bench-badge {
-    transform: scale(1.08);
-    border-color: #fff;
-  }
-
-  .bench-slot.pickable .bench-badge {
-    border-color: var(--main-team);
-    box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.35);
-  }
-
-  .bench-empty-icon {
-    font-size: 24px;
-    color: rgba(255,255,255,0.7);
-  }
-
-  .bench-slot-name {
-    font-size: 10.5px;
-    font-weight: 800;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 0.2px;
-    -webkit-text-stroke: 2px #0a0e0b;
-    paint-order: stroke fill;
-    margin-top: 4px;
-    width: 100%;
-    text-align: center;
-    white-space: normal;
-    line-height: 1.1;
-    word-wrap: break-word;
-  }
-
-  .bench-remove-x {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #d13b3b;
-    color: #fff;
-    font-size: 13px;
-    line-height: 20px;
-    text-align: center;
-    display: none;
-    z-index: 3;
-  }
-
-  .bench-slot.filled:hover .bench-remove-x { display: block; }
-
+  /* Pitch Layout */
   .pitch-wrap {
     position: relative;
     flex: 1 1 0;
     width: 0;
     min-width: 0;
-    max-height: 80vh;
     aspect-ratio: 3 / 4;
     margin: 0 auto;
     border-radius: 18px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    background-color: #1e7a3d;
-    background: linear-gradient(
-      to bottom,
-      #1e7a3d 0%, #1e7a3d 10%,
-      #1a6d36 10%, #1a6d36 20%,
-      #1e7a3d 20%, #1e7a3d 30%,
-      #1a6d36 30%, #1a6d36 40%,
-      #1e7a3d 40%, #1e7a3d 50%,
-      #1a6d36 50%, #1a6d36 60%,
-      #1e7a3d 60%, #1e7a3d 70%,
-      #1a6d36 70%, #1a6d36 80%,
-      #1e7a3d 80%, #1e7a3d 90%,
-      #1a6d36 90%, #1a6d36 100%
-    );
+    background: linear-gradient( to bottom, #1e7a3d 0%, #1e7a3d 10%, #1a6d36 10%, #1a6d36 20%, #1e7a3d 20%, #1e7a3d 30%, #1a6d36 30%, #1a6d36 40%, #1e7a3d 40%, #1e7a3d 50%, #1a6d36 50%, #1a6d36 60%, #1e7a3d 60%, #1e7a3d 70%, #1a6d36 70%, #1a6d36 80%, #1e7a3d 80%, #1e7a3d 90%, #1a6d36 90%, #1a6d36 100% );
   }
   
-  .pitch-logo {
+  /* NEW: Center Watermark Logo */
+  .pitch-watermark {
     position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 95px;
-    height: auto;
-    z-index: 1;
-    opacity: 0.85;
-  }
-
-  svg.pitch-lines {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .slot {
-    position: absolute;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    z-index: 2;
+    width: 240px; height: auto;
+    z-index: 1;
+    opacity: 0.15;
+    pointer-events: none;
+    filter: grayscale(20%);
   }
 
-  .slot-badge {
-    width: 78px;
-    height: 78px;
-    border-radius: 50%;
-    background: var(--slot-empty);
-    border: 3px dashed var(--slot-empty-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
-    overflow: hidden;
-    position: relative;
-  }
+  svg.pitch-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 
-  .slot.filled .slot-badge {
-    border-style: solid;
-    background: #10230f;
-  }
-
-  .slot.filled .slot-badge img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .slot:hover .slot-badge {
-    transform: scale(1.06);
-    border-color: #fff;
-  }
-
-  .slot.pickable .slot-badge {
-    border-color: var(--main-team);
-    box-shadow: 0 0 0 4px rgba(242, 201, 76, 0.35);
-  }
-
-  .slot-pos {
-    font-size: 16px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.85);
-    letter-spacing: 0.5px;
-    margin-top: 3px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-  }
-
-  .slot-name {
-    font-size: 17px;
-    font-weight: 800;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    -webkit-text-stroke: 3.5px #0a0e0b;
-    paint-order: stroke fill;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
-    margin-top: 2px;
-    width: 170px;
-    text-align: center;
-    white-space: normal;
-    line-height: 1.1;
-    word-wrap: break-word;
-  }
-
-  .remove-x {
+  /* NEW: Match Overlay Texts */
+  .match-overlay {
     position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: #d13b3b;
-    color: #fff;
-    font-size: 14px;
-    line-height: 22px;
+    top: 15px; left: 0; width: 100%;
     text-align: center;
-    display: none;
     z-index: 3;
+    pointer-events: none;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .match-overlay .m-title { font-size: 19px; font-weight: 900; color: #fff; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
+  .match-overlay .m-type { font-size: 13px; font-weight: 800; color: var(--main-team); text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.9); letter-spacing: 1px; }
+  .match-overlay .m-time { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85); text-shadow: 0 1px 2px rgba(0,0,0,0.9); }
+
+  /* NEW: Manager Signature */
+  .manager-sig {
+    position: absolute;
+    bottom: 12px; right: 16px;
+    font-size: 13px; font-weight: 800;
+    color: rgba(255,255,255,0.6);
+    z-index: 3; pointer-events: none;
+    text-transform: uppercase; letter-spacing: 0.5px;
   }
 
-  .slot.filled:hover .remove-x { display: block; }
+  /* Player Slots on Pitch */
+  .slot { position: absolute; transform: translate(-50%, -50%); width: 100px; display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; z-index: 4; }
+  .slot-badge { width: 78px; height: 78px; border-radius: 50%; background: var(--slot-empty); border: 3px dashed var(--slot-empty-border); display: flex; align-items: center; justify-content: center; position: relative; }
+  .slot.filled .slot-badge { border-style: solid; background: #10230f; }
+  .slot.filled .slot-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%;}
+  
+  .empty-icon { font-size: 32px; color: rgba(255,255,255,0.7); }
+  
+  .slot-pos { font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.85); margin-top: 3px; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+  .slot-name { font-size: 17px; font-weight: 800; color: #ffffff; text-transform: uppercase; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); margin-top: 2px; text-align: center; line-height: 1.1; -webkit-text-stroke: 3.5px #0a0e0b; paint-order: stroke fill; }
+  .slot-name.main-team { color: var(--main-team); } 
 
-  .empty-icon {
-    font-size: 32px;
-    color: rgba(255,255,255,0.7);
+  /* NEW: Captain & VC Badges */
+  .cap-badge {
+    position: absolute;
+    bottom: -2px; right: -2px;
+    width: 26px; height: 26px;
+    background: var(--main-team);
+    border: 2px solid #000;
+    color: #000;
+    font-size: 14px; font-weight: 900;
+    line-height: 22px; text-align: center;
+    border-radius: 6px;
+    z-index: 5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.6);
   }
 
-  .download-btn {
-    margin-top: 4px;
-    background: var(--panel);
-    color: var(--ink);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: all 0.15s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .remove-x, .bench-remove-x {
+    position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 14px; line-height: 22px; text-align: center; display: none; z-index: 6;
   }
+  .slot.filled:hover .remove-x, .bench-slot.filled:hover .bench-remove-x { display: block; }
 
-  .download-btn:hover {
-    background: #252e29;
-    border-color: var(--accent);
-  }
+  /* Export Action Buttons */
+  .actions-row { display: flex; gap: 12px; margin-top: 4px; }
+  .download-btn { background: var(--panel); color: var(--ink); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .download-btn:hover { background: #252e29; border-color: var(--accent); }
 
-  .roster-panel {
-    width: 300px;
-    flex-shrink: 0;
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 14px;
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-    max-height: calc(100vh - 110px);
-    position: sticky;
-    top: 20px;
-  }
+  /* Roster Panel */
+  .roster-panel { width: 300px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; display: flex; flex-direction: column; max-height: calc(100vh - 150px); position: sticky; top: 20px; }
+  .roster-header { padding: 16px 16px 10px; border-bottom: 1px solid var(--panel-border); }
+  .roster-header h2 { margin: 0 0 8px; font-size: 15px; }
+  
+  .add-player-row { display: flex; gap: 6px; margin-bottom: 10px; }
+  .add-player-row input { flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--paper); color: var(--ink); font-size: 12px;}
+  .add-player-btn { background: var(--accent); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; padding: 0 10px;}
 
-  .roster-header {
-    padding: 16px 16px 10px;
-    border-bottom: 1px solid var(--panel-border);
-  }
-
-  .roster-header h2 {
-    margin: 0 0 8px;
-    font-size: 15px;
-    letter-spacing: 0.3px;
-  }
-
-  .roster-search {
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--panel-border);
-    font-size: 13px;
-    background: var(--paper);
-    color: var(--ink);
-  }
-
-  .roster-legend {
-    display: flex;
-    gap: 14px;
-    margin-top: 8px;
-    font-size: 11.5px;
-    color: var(--muted);
-  }
-
-  .legend-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 5px;
-  }
-
-  .legend-dot.main { background: var(--main-team); }
-  .legend-dot.sub { background: #555; }
-
-  .roster-list {
-    overflow-y: auto;
-    padding: 8px;
-    flex: 1;
-  }
-
-  .roster-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 8px;
-    border-radius: 10px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: background 0.12s ease, border-color 0.12s ease;
-  }
-
-  .roster-item:hover {
-    background: #232c26;
-  }
-
-  .roster-item.selected {
-    background: #1e3625;
-    border-color: var(--accent);
-  }
-
-  .roster-item.placed {
-    opacity: 0.45;
-  }
-
-  .roster-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: #2c3630;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 1px solid #3d4a42;
-  }
-
-  .roster-info {
-    min-width: 0;
-    flex: 1;
-  }
-
-  .roster-name {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--ink);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
+  .roster-search { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-size: 13px; background: var(--paper); color: var(--ink); }
+  .roster-list { overflow-y: auto; padding: 8px; flex: 1; }
+  .roster-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; }
+  .roster-item:hover { background: #232c26; }
+  .roster-item.selected { background: #1e3625; border-color: var(--accent); }
+  .roster-item.placed { opacity: 0.45; }
+  .roster-avatar { width: 38px; height: 38px; border-radius: 50%; background: #2c3630; object-fit: cover; border: 1px solid #3d4a42; }
+  .roster-info { min-width: 0; flex: 1; }
+  .roster-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .roster-name.main-team { color: #dcb336; } 
+  .roster-tag { font-size: 10.5px; color: var(--muted); }
 
-  .roster-tag {
-    font-size: 10.5px;
-    color: var(--muted);
+  .hint-bar { padding: 10px 16px; border-top: 1px solid var(--panel-border); font-size: 12px; color: var(--muted); background: var(--paper); border-radius: 0 0 14px 14px; text-align: center; }
+
+  /* NEW: Export Mode - Reorganizes layout for a clean Discord output */
+  .export-mode {
+    flex-direction: column !important;
+    align-items: center !important;
+    background: #121614 !important;
+    padding: 24px !important;
+    width: auto !important;
+    border-radius: 0 !important;
   }
-
-  .hint-bar {
-    padding: 10px 16px;
-    border-top: 1px solid var(--panel-border);
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--paper);
-    border-radius: 0 0 14px 14px;
+  .export-mode .bench-wrap {
+    width: 100% !important;
+    flex-direction: row !important;
+    max-height: none !important;
+    padding: 14px 20px !important;
   }
-
-  .hint-bar b { color: var(--ink); }
-
-  @media (max-width: 880px) {
-    main { flex-direction: column; }
-    .roster-panel {
-      width: 100%;
-      position: static;
-      max-height: 420px;
-    }
-    .pitch-wrap { max-height: none; }
-    .bench-wrap { max-height: none; width: 100px; }
+  .export-mode .bench-slots {
+    flex-direction: row !important;
+    gap: 20px !important;
   }
+  .export-mode .remove-x, .export-mode .bench-remove-x { display: none !important; }
 
-  @media (max-width: 560px) {
-    .capture-area { gap: 8px; }
-    .bench-wrap { width: 76px; padding: 8px 4px; }
-    .bench-badge { width: 44px; height: 44px; }
-    .bench-slot-name { font-size: 8.5px; -webkit-text-stroke: 1.4px #0a0e0b; }
-    .bench-title { font-size: 9.5px; }
-  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand">
-    <h1>⚽ Manchester City</h1>
-    <span class="sub">Lineup planner</span>
+  <div class="header-row">
+    <div class="brand">
+      <h1>⚽ Manchester City</h1>
+      <span class="sub" style="font-size: 12.5px; color: var(--muted);">Lineup planner</span>
+    </div>
+    <div class="controls">
+      <div class="control-group">
+        <label>Team</label>
+        <select id="logoSelect">
+          <option value="logo.png">Manchester City</option>
+          <option value="england.png">England</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Players</label>
+        <select id="playerCount"></select>
+      </div>
+      <div class="control-group">
+        <label>Formation</label>
+        <select id="formationSelect"></select>
+      </div>
+      <button class="ghost" id="clearBtn">Clear pitch</button>
+    </div>
   </div>
-  <div class="controls">
-    <!-- NEW LOGO SELECTOR DROPDOWN -->
-    <div class="control-group">
-      <label for="logoSelect">Team</label>
-      <select id="logoSelect">
-        <option value="logo.png">Manchester City</option>
-        <option value="england.png">England</option>
-      </select>
+
+  <div class="header-row">
+    <div class="controls">
+      <div class="control-group">
+        <label>Match</label>
+        <input type="text" id="matchNameIn" value="Manchester City vs Opponent">
+      </div>
+      <div class="control-group">
+        <label>Type</label>
+        <input type="text" id="matchTypeIn" value="League Game">
+      </div>
+      <div class="control-group">
+        <label>Time</label>
+        <input type="text" id="matchTimeIn" value="8:00 PM UK TIME">
+      </div>
     </div>
-    <div class="control-group">
-      <label for="playerCount">Players</label>
-      <select id="playerCount"></select>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label>Webhook URL</label>
+        <input type="text" id="webhookUrl" placeholder="Paste Discord Webhook...">
+      </div>
     </div>
-    <div class="control-group">
-      <label for="formationSelect">Formation</label>
-      <select id="formationSelect"></select>
-    </div>
-    <button class="ghost" id="clearBtn">Clear pitch</button>
   </div>
 </header>
 
 <main>
   <div class="pitch-column">
     <div class="capture-area" id="captureArea">
-      <div class="bench-wrap" id="benchWrap">
-        <div class="bench-title">Bench</div>
-        <div class="bench-slots" id="benchSlotsLayer"></div>
-      </div>
-
+      
       <div class="pitch-wrap" id="pitchWrap">
-        <!-- ADDED ID HERE -->
-        <img src="logo.png" alt="Logo" class="pitch-logo" id="pitchLogo">
+        <!-- Center Watermark instead of top left -->
+        <img src="logo.png" alt="Logo" class="pitch-watermark" id="pitchLogo">
+
+        <!-- Match Overlay Texts -->
+        <div class="match-overlay">
+          <div class="m-title" id="outName">Manchester City vs Opponent</div>
+          <div class="m-type" id="outType">League Game</div>
+          <div class="m-time" id="outTime">8:00 PM UK TIME</div>
+        </div>
+
+        <!-- Manager Signature -->
+        <div class="manager-sig">Manager: Naseem</div>
 
         <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
           <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
@@ -671,79 +420,48 @@
         </svg>
         <div id="slotsLayer"></div>
       </div>
+
+      <div class="bench-wrap" id="benchWrap">
+        <div class="bench-title">Bench</div>
+        <div class="bench-slots" id="benchSlotsLayer"></div>
+      </div>
+
     </div>
 
-    <button class="download-btn" id="downloadBtn">
-      📸 Save Pitch Image
-    </button>
+    <div class="actions-row">
+      <button class="download-btn" id="downloadBtn">📸 Save Image</button>
+      <button class="action-btn discord" id="discordBtn">
+        <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#fff"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.51,80.21h0A105.73,105.73,0,0,0,32.79,96.36a77.7,77.7,0,0,0,6.89-11.1,77.42,77.42,0,0,1-11.07-5.22c.81-.62,1.61-1.25,2.37-1.92A74.45,74.45,0,0,0,63.57,85.22a74.19,74.19,0,0,0,32.55-7.1c.78.68,1.58,1.31,2.4,1.94a77.54,77.54,0,0,1-11.12,5.2,78.53,78.53,0,0,0,6.92,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.2,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+        Send to Discord
+      </button>
+    </div>
   </div>
 
   <aside class="roster-panel">
     <div class="roster-header">
       <h2>Roster</h2>
-      <input type="text" class="roster-search" id="rosterSearch" placeholder="Search players...">
-      <div class="roster-legend">
-        <span><span class="legend-dot main"></span>Main Team</span>
-        <span><span class="legend-dot sub"></span>Squad</span>
+      <div class="add-player-row">
+        <input type="text" id="newRobloxUser" placeholder="Roblox username...">
+        <button class="add-player-btn" id="addRobloxBtn" title="Add live Avatar">+</button>
       </div>
+      <input type="text" class="roster-search" id="rosterSearch" placeholder="Search players...">
     </div>
     <div class="roster-list" id="rosterList"></div>
     <div class="hint-bar">
-      <b>Tip:</b> Click a player, then click a pitch slot to place them.
+      <b>Tip:</b> Click player, then pitch slot. <b>Right-click</b> pitch slots for Capt/VC.
     </div>
   </aside>
 </main>
 
 <script>
 const FORMATIONS = {
-  5: [
-    { key: "1-2-1", rows: [1, 2, 1] },
-    { key: "1-1-2", rows: [1, 1, 2] },
-    { key: "2-1-1", rows: [2, 1, 1] },
-    { key: "1-3", rows: [1, 3] },
-  ],
-  6: [
-    { key: "2-2-1", rows: [2, 2, 1] },
-    { key: "1-3-1", rows: [1, 3, 1] },
-    { key: "2-1-2", rows: [2, 1, 2] },
-    { key: "1-2-2", rows: [1, 2, 2] },
-  ],
-  7: [
-    { key: "3-1-2", rows: [3, 1, 2] },
-    { key: "2-3-1", rows: [2, 3, 1] },
-    { key: "3-2-1", rows: [3, 2, 1] },
-    { key: "2-2-2", rows: [2, 2, 2] },
-    { key: "1-3-2", rows: [1, 3, 2] },
-  ],
-  8: [
-    { key: "3-2-2", rows: [3, 2, 2] },
-    { key: "3-3-1", rows: [3, 3, 1] },
-    { key: "2-3-2", rows: [2, 3, 2] },
-    { key: "2-4-1", rows: [2, 4, 1] },
-    { key: "3-1-3", rows: [3, 1, 3] },
-  ],
-  9: [
-    { key: "3-3-2", rows: [3, 3, 2] },
-    { key: "4-3-1", rows: [4, 3, 1] },
-    { key: "3-2-3", rows: [3, 2, 3] },
-    { key: "4-2-2", rows: [4, 2, 2] },
-    { key: "2-4-2", rows: [2, 4, 2] },
-  ],
-  10: [
-    { key: "4-3-2", rows: [4, 3, 2] },
-    { key: "3-4-2", rows: [3, 4, 2] },
-    { key: "4-4-1", rows: [4, 4, 1] },
-    { key: "3-3-3", rows: [3, 3, 3] },
-    { key: "4-2-3", rows: [4, 2, 3] },
-  ],
-  11: [
-    { key: "4-4-2", rows: [4, 4, 2] },
-    { key: "4-3-3", rows: [4, 3, 3] },
-    { key: "3-5-2", rows: [3, 5, 2] },
-    { key: "4-5-1", rows: [4, 5, 1] },
-    { key: "3-4-3", rows: [3, 4, 3] },
-    { key: "5-3-2", rows: [5, 3, 2] },
-  ],
+  5: [{ key: "1-2-1", rows: [1, 2, 1] }, { key: "1-1-2", rows: [1, 1, 2] }, { key: "2-1-1", rows: [2, 1, 1] }, { key: "1-3", rows: [1, 3] }],
+  6: [{ key: "2-2-1", rows: [2, 2, 1] }, { key: "1-3-1", rows: [1, 3, 1] }, { key: "2-1-2", rows: [2, 1, 2] }, { key: "1-2-2", rows: [1, 2, 2] }],
+  7: [{ key: "3-1-2", rows: [3, 1, 2] }, { key: "2-3-1", rows: [2, 3, 1] }, { key: "3-2-1", rows: [3, 2, 1] }, { key: "2-2-2", rows: [2, 2, 2] }, { key: "1-3-2", rows: [1, 3, 2] }],
+  8: [{ key: "3-2-2", rows: [3, 2, 2] }, { key: "3-3-1", rows: [3, 3, 1] }, { key: "2-3-2", rows: [2, 3, 2] }, { key: "2-4-1", rows: [2, 4, 1] }, { key: "3-1-3", rows: [3, 1, 3] }],
+  9: [{ key: "3-3-2", rows: [3, 3, 2] }, { key: "4-3-1", rows: [4, 3, 1] }, { key: "3-2-3", rows: [3, 2, 3] }, { key: "4-2-2", rows: [4, 2, 2] }, { key: "2-4-2", rows: [2, 4, 2] }],
+  10: [{ key: "4-3-2", rows: [4, 3, 2] }, { key: "3-4-2", rows: [3, 4, 2] }, { key: "4-4-1", rows: [4, 4, 1] }, { key: "3-3-3", rows: [3, 3, 3] }, { key: "4-2-3", rows: [4, 2, 3] }],
+  11: [{ key: "4-4-2", rows: [4, 4, 2] }, { key: "4-3-3", rows: [4, 3, 3] }, { key: "3-5-2", rows: [3, 5, 2] }, { key: "4-5-1", rows: [4, 5, 1] }, { key: "3-4-3", rows: [3, 4, 3] }, { key: "5-3-2", rows: [5, 3, 2] }],
 };
 
 let players = [];           
@@ -751,21 +469,24 @@ let playerCount = 7;
 let formationKey = FORMATIONS[7][0].key;
 let assignments = {};       
 let benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null };
+let roles = {}; // Stores Captain (C) / Vice (VC) data
 let selectedPlayerId = null;
 
+// Match details bindings
+const ids = ['matchNameIn', 'matchTypeIn', 'matchTimeIn'];
+const outs = ['outName', 'outType', 'outTime'];
+ids.forEach((id, i) => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    document.getElementById(outs[i]).textContent = e.target.value;
+  });
+});
+
 function buildSlots(rows) {
-  const slots = [];
-  slots.push({ id: "GK", label: "GK", row: 0 });
+  const slots = [{ id: "GK", label: "GK", row: 0 }];
   const totalRows = rows.length;
   rows.forEach((count, rowIndex) => {
     for (let i = 0; i < count; i++) {
-      slots.push({
-        id: "R" + rowIndex + "-" + i,
-        label: rowLabel(rowIndex, totalRows),
-        row: rowIndex + 1,
-        posInRow: i,
-        countInRow: count,
-      });
+      slots.push({ id: "R" + rowIndex + "-" + i, label: rowLabel(rowIndex, totalRows), row: rowIndex + 1 });
     }
   });
   return slots;
@@ -781,19 +502,11 @@ function rowLabel(rowIndex, totalRows) {
 
 function computeCoords(rows) {
   const totalRows = rows.length;
-  const coords = {};
-  coords["GK"] = { x: 150, y: 360 };
-
-  const yNearGK = 290;
-  const yFarFromGK = 65;
+  const coords = { "GK": { x: 150, y: 360 } };
+  const yNearGK = 290, yFarFromGK = 65;
   rows.forEach((count, rowIndex) => {
-    const y = totalRows === 1
-      ? (yNearGK + yFarFromGK) / 2
-      : yNearGK + (rowIndex * (yFarFromGK - yNearGK)) / (totalRows - 1);
-    for (let i = 0; i < count; i++) {
-      const x = (300 * (i + 1)) / (count + 1);
-      coords["R" + rowIndex + "-" + i] = { x, y };
-    }
+    const y = totalRows === 1 ? (yNearGK + yFarFromGK) / 2 : yNearGK + (rowIndex * (yFarFromGK - yNearGK)) / (totalRows - 1);
+    for (let i = 0; i < count; i++) coords["R" + rowIndex + "-" + i] = { x: (300 * (i + 1)) / (count + 1), y };
   });
   return coords;
 }
@@ -802,11 +515,8 @@ function renderPlayerCountOptions() {
   const sel = document.getElementById("playerCount");
   sel.innerHTML = "";
   Object.keys(FORMATIONS).map(Number).sort((a,b)=>a-b).forEach(n => {
-    const opt = document.createElement("option");
-    opt.value = n;
-    opt.textContent = n + " players";
-    if (n === playerCount) opt.selected = true;
-    sel.appendChild(opt);
+    const opt = document.createElement("option"); opt.value = n; opt.textContent = n + " players";
+    if (n === playerCount) opt.selected = true; sel.appendChild(opt);
   });
 }
 
@@ -814,17 +524,12 @@ function renderFormationOptions() {
   const sel = document.getElementById("formationSelect");
   sel.innerHTML = "";
   FORMATIONS[playerCount].forEach(f => {
-    const opt = document.createElement("option");
-    opt.value = f.key;
-    opt.textContent = f.key + " (" + (playerCount - 1) + "+GK)";
-    if (f.key === formationKey) opt.selected = true;
-    sel.appendChild(opt);
+    const opt = document.createElement("option"); opt.value = f.key; opt.textContent = f.key + " (" + (playerCount - 1) + "+GK)";
+    if (f.key === formationKey) opt.selected = true; sel.appendChild(opt);
   });
 }
 
-function currentFormation() {
-  return FORMATIONS[playerCount].find(f => f.key === formationKey) || FORMATIONS[playerCount][0];
-}
+function currentFormation() { return FORMATIONS[playerCount].find(f => f.key === formationKey) || FORMATIONS[playerCount][0]; }
 
 function renderPitch() {
   const formation = currentFormation();
@@ -835,74 +540,64 @@ function renderPitch() {
 
   const validIds = new Set(slots.map(s => s.id));
   Object.keys(assignments).forEach(slotId => {
-    if (!validIds.has(slotId)) delete assignments[slotId];
+    if (!validIds.has(slotId)) { delete assignments[slotId]; delete roles[slotId]; }
   });
 
   slots.forEach(slot => {
     const coord = coords[slot.id];
     const div = document.createElement("div");
     div.className = "slot";
-    div.style.left = (coord.x / 300 * 100) + "%";
-    div.style.top = (coord.y / 400 * 100) + "%";
-    div.tabIndex = 0;
-    div.setAttribute("role", "button");
-    div.setAttribute("aria-label", slot.label + " slot");
+    div.style.left = (coord.x / 300 * 100) + "%"; div.style.top = (coord.y / 400 * 100) + "%";
 
     const playerId = assignments[slot.id];
     const player = playerId ? players.find(p => p.id === playerId) : null;
-
     const badge = document.createElement("div");
     badge.className = "slot-badge";
 
     if (player) {
       div.classList.add("filled");
       if (player.avatar) {
-        const img = document.createElement("img");
-        img.src = player.avatar;
-        img.alt = player.name;
-        img.onerror = () => { img.style.display = "none"; badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize="20px"; };
-        badge.appendChild(img);
+        const img = document.createElement("img"); img.src = player.avatar; badge.appendChild(img);
       } else {
-        badge.textContent = initials(player.name);
-        badge.style.color = "#fff";
-        badge.style.fontWeight = "700";
-        badge.style.fontSize = "20px";
+        badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize="20px";
       }
+      
+      // Captain/VC Role badge
+      if (roles[slot.id]) {
+        const capBadge = document.createElement("div");
+        capBadge.className = "cap-badge";
+        capBadge.textContent = roles[slot.id];
+        badge.appendChild(capBadge);
+      }
+
       const removeX = document.createElement("div");
-      removeX.className = "remove-x";
-      removeX.textContent = "×";
-      removeX.title = "Remove from pitch";
-      removeX.onclick = (e) => {
-        e.stopPropagation();
-        delete assignments[slot.id];
-        renderPitch();
-        renderRoster();
-      };
+      removeX.className = "remove-x"; removeX.textContent = "×";
+      removeX.onclick = (e) => { e.stopPropagation(); delete assignments[slot.id]; delete roles[slot.id]; renderPitch(); renderRoster(); };
       div.appendChild(removeX);
     } else {
-      const icon = document.createElement("div");
-      icon.className = "empty-icon";
-      icon.textContent = "+";
+      const icon = document.createElement("div"); icon.className = "empty-icon"; icon.textContent = "+";
       badge.appendChild(icon);
-      if (selectedPlayerId) div.classList.add("pickable");
     }
 
     div.appendChild(badge);
-
-    const posLabel = document.createElement("div");
-    posLabel.className = "slot-pos";
-    posLabel.textContent = slot.label;
-    div.appendChild(posLabel);
+    const posLabel = document.createElement("div"); posLabel.className = "slot-pos"; posLabel.textContent = slot.label; div.appendChild(posLabel);
 
     if (player) {
-      const nameLabel = document.createElement("div");
-      nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : "");
-      nameLabel.textContent = player.name;
-      div.appendChild(nameLabel);
+      const nameLabel = document.createElement("div"); nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : ""); nameLabel.textContent = player.name; div.appendChild(nameLabel);
     }
 
+    // Left Click Assignment
     div.onclick = () => onSlotClick(slot.id);
-    div.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSlotClick(slot.id); } };
+    
+    // Right Click Roles
+    div.oncontextmenu = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (!player) return; // Only if slot has player
+      if (roles[slot.id] === 'C') roles[slot.id] = 'VC';
+      else if (roles[slot.id] === 'VC') delete roles[slot.id];
+      else roles[slot.id] = 'C';
+      renderPitch();
+    };
 
     layer.appendChild(div);
   });
@@ -911,116 +606,55 @@ function renderPitch() {
 function renderBench() {
   const layer = document.getElementById("benchSlotsLayer");
   layer.innerHTML = "";
-
-  const benchIds = ["B0", "B1", "B2", "B3", "B4"];
-
-  benchIds.forEach(slotId => {
-    const div = document.createElement("div");
-    div.className = "bench-slot";
-    div.tabIndex = 0;
-    div.setAttribute("role", "button");
-    div.setAttribute("aria-label", "Bench slot");
-
+  ["B0", "B1", "B2", "B3", "B4"].forEach(slotId => {
+    const div = document.createElement("div"); div.className = "bench-slot";
     const playerId = benchAssignments[slotId];
     const player = playerId ? players.find(p => p.id === playerId) : null;
-
-    const badge = document.createElement("div");
-    badge.className = "bench-badge";
+    const badge = document.createElement("div"); badge.className = "bench-badge";
 
     if (player) {
       div.classList.add("filled");
       if (player.avatar) {
-        const img = document.createElement("img");
-        img.src = player.avatar;
-        img.alt = player.name;
-        img.onerror = () => { img.style.display = "none"; badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize = "13px"; };
-        badge.appendChild(img);
-      } else {
-        badge.textContent = initials(player.name);
-        badge.style.color = "#fff";
-        badge.style.fontWeight = "700";
-        badge.style.fontSize = "13px";
-      }
-      const removeX = document.createElement("div");
-      removeX.className = "bench-remove-x";
-      removeX.textContent = "×";
-      removeX.title = "Remove from bench";
-      removeX.onclick = (e) => {
-        e.stopPropagation();
-        benchAssignments[slotId] = null;
-        renderBench();
-        renderRoster();
-      };
+        const img = document.createElement("img"); img.src = player.avatar; badge.appendChild(img);
+      } else { badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize = "13px"; }
+      
+      const removeX = document.createElement("div"); removeX.className = "bench-remove-x"; removeX.textContent = "×";
+      removeX.onclick = (e) => { e.stopPropagation(); benchAssignments[slotId] = null; renderBench(); renderRoster(); };
       div.appendChild(removeX);
     } else {
-      const icon = document.createElement("div");
-      icon.className = "bench-empty-icon";
-      icon.textContent = "+";
-      badge.appendChild(icon);
-      if (selectedPlayerId) div.classList.add("pickable");
+      const icon = document.createElement("div"); icon.className = "bench-empty-icon"; icon.textContent = "+"; badge.appendChild(icon);
     }
 
     div.appendChild(badge);
-
-    if (player) {
-      const nameLabel = document.createElement("div");
-      nameLabel.className = "bench-slot-name";
-      nameLabel.textContent = player.name;
-      div.appendChild(nameLabel);
-    }
-
+    if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "bench-slot-name"; nameLabel.textContent = player.name; div.appendChild(nameLabel); }
     div.onclick = () => onBenchSlotClick(slotId);
-    div.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onBenchSlotClick(slotId); } };
-
     layer.appendChild(div);
   });
 }
 
 function onBenchSlotClick(slotId) {
   if (selectedPlayerId) {
-    Object.keys(assignments).forEach(sid => {
-      if (assignments[sid] === selectedPlayerId) delete assignments[sid];
-    });
-    Object.keys(benchAssignments).forEach(sid => {
-      if (benchAssignments[sid] === selectedPlayerId) benchAssignments[sid] = null;
-    });
-    benchAssignments[slotId] = selectedPlayerId;
-    selectedPlayerId = null;
-    renderPitch();
-    renderBench();
-    renderRoster();
+    Object.keys(assignments).forEach(sid => { if (assignments[sid] === selectedPlayerId) { delete assignments[sid]; delete roles[sid]; }});
+    Object.keys(benchAssignments).forEach(sid => { if (benchAssignments[sid] === selectedPlayerId) benchAssignments[sid] = null; });
+    benchAssignments[slotId] = selectedPlayerId; selectedPlayerId = null;
+    renderPitch(); renderBench(); renderRoster();
   } else if (benchAssignments[slotId]) {
-    selectedPlayerId = benchAssignments[slotId];
-    benchAssignments[slotId] = null;
-    renderPitch();
-    renderBench();
-    renderRoster();
+    selectedPlayerId = benchAssignments[slotId]; benchAssignments[slotId] = null;
+    renderPitch(); renderBench(); renderRoster();
   }
 }
 
-function initials(name) {
-  return name.trim().split(/\s+/).map(w => w[0]).join("").slice(0,2).toUpperCase();
-}
+function initials(name) { return name.trim().split(/\s+/).map(w => w[0]).join("").slice(0,2).toUpperCase(); }
 
 function onSlotClick(slotId) {
   if (selectedPlayerId) {
-    Object.keys(assignments).forEach(sid => {
-      if (assignments[sid] === selectedPlayerId) delete assignments[sid];
-    });
-    Object.keys(benchAssignments).forEach(sid => {
-      if (benchAssignments[sid] === selectedPlayerId) benchAssignments[sid] = null;
-    });
-    assignments[slotId] = selectedPlayerId;
-    selectedPlayerId = null;
-    renderPitch();
-    renderBench();
-    renderRoster();
+    Object.keys(assignments).forEach(sid => { if (assignments[sid] === selectedPlayerId) { delete assignments[sid]; delete roles[sid]; }});
+    Object.keys(benchAssignments).forEach(sid => { if (benchAssignments[sid] === selectedPlayerId) benchAssignments[sid] = null; });
+    assignments[slotId] = selectedPlayerId; selectedPlayerId = null;
+    renderPitch(); renderBench(); renderRoster();
   } else if (assignments[slotId]) {
-    selectedPlayerId = assignments[slotId];
-    delete assignments[slotId];
-    renderPitch();
-    renderBench();
-    renderRoster();
+    selectedPlayerId = assignments[slotId]; delete assignments[slotId]; delete roles[slotId];
+    renderPitch(); renderBench(); renderRoster();
   }
 }
 
@@ -1032,130 +666,146 @@ function renderRoster() {
   const placedIds = new Set([...Object.values(assignments), ...Object.values(benchAssignments).filter(Boolean)]);
   const benchIds = new Set(Object.values(benchAssignments).filter(Boolean));
 
-  const sorted = [...players].sort((a, b) => {
-    if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1;
-    return a.name.localeCompare(b.name);
-  });
-
-  sorted
+  [...players].sort((a, b) => { if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1; return a.name.localeCompare(b.name); })
     .filter(p => p.name.toLowerCase().includes(query))
     .forEach(p => {
-      const item = document.createElement("div");
-      item.className = "roster-item";
+      const item = document.createElement("div"); item.className = "roster-item";
       if (p.id === selectedPlayerId) item.classList.add("selected");
       if (placedIds.has(p.id)) item.classList.add("placed");
-      item.tabIndex = 0;
-
-      const img = document.createElement("img");
-      img.className = "roster-avatar";
+      
+      const img = document.createElement("img"); img.className = "roster-avatar";
       if (p.avatar) img.src = p.avatar;
-      img.alt = p.name;
-      img.onerror = () => { img.removeAttribute("src"); };
-
-      const info = document.createElement("div");
-      info.className = "roster-info";
-      const nameEl = document.createElement("div");
-      nameEl.className = "roster-name" + (p.mainTeam ? " main-team" : "");
-      nameEl.textContent = p.name;
-      const tagEl = document.createElement("div");
-      tagEl.className = "roster-tag";
+      
+      const info = document.createElement("div"); info.className = "roster-info";
+      const nameEl = document.createElement("div"); nameEl.className = "roster-name" + (p.mainTeam ? " main-team" : ""); nameEl.textContent = p.name;
+      const tagEl = document.createElement("div"); tagEl.className = "roster-tag";
       tagEl.textContent = benchIds.has(p.id) ? "On bench" : (placedIds.has(p.id) ? "On pitch" : (p.mainTeam ? "Main Team" : "Squad"));
-      info.appendChild(nameEl);
-      info.appendChild(tagEl);
+      
+      info.appendChild(nameEl); info.appendChild(tagEl);
+      item.appendChild(img); item.appendChild(info);
 
-      item.appendChild(img);
-      item.appendChild(info);
-
-      item.onclick = () => {
-        selectedPlayerId = (selectedPlayerId === p.id) ? null : p.id;
-        renderRoster();
-        renderPitch();
-      };
-      item.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); item.click(); } };
-
+      item.onclick = () => { selectedPlayerId = (selectedPlayerId === p.id) ? null : p.id; renderRoster(); renderPitch(); };
       list.appendChild(item);
     });
 }
 
-// LOGO DROPDOWN EVENT LISTENER
-document.getElementById("logoSelect").onchange = (e) => {
-  document.getElementById("pitchLogo").src = e.target.value;
+// Live Roblox Avatar API call using proxy
+document.getElementById("addRobloxBtn").onclick = async () => {
+  const input = document.getElementById('newRobloxUser');
+  const name = input.value.trim();
+  const btn = document.getElementById('addRobloxBtn');
+  if(!name) return;
+  
+  btn.textContent = "...";
+  try {
+    const userRes = await fetch('https://users.roproxy.com/v1/usernames/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usernames: [name], excludeBannedUsers: false })
+    });
+    const userData = await userRes.json();
+    if(userData.data && userData.data.length > 0) {
+      const id = userData.data[0].id;
+      const thumbRes = await fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${id}&size=150x150&format=Png&isCircular=true`);
+      const thumbData = await thumbRes.json();
+      if(thumbData.data && thumbData.data.length > 0) {
+         players.push({ id: "p_" + Date.now(), name: name, mainTeam: true, avatar: thumbData.data[0].imageUrl });
+         renderRoster();
+         input.value = '';
+      }
+    } else {
+      alert("Roblox user not found!");
+    }
+  } catch(e) { console.error(e); alert("Network error fetching player avatar."); }
+  btn.textContent = "+";
 };
 
-document.getElementById("playerCount").onchange = (e) => {
-  playerCount = Number(e.target.value);
-  formationKey = FORMATIONS[playerCount][0].key;
-  assignments = {};
-  renderFormationOptions();
-  renderPitch();
-  renderBench();
-  renderRoster();
-};
 
-document.getElementById("formationSelect").onchange = (e) => {
-  formationKey = e.target.value;
-  assignments = {};
-  renderPitch();
-  renderBench();
-  renderRoster();
-};
-
-document.getElementById("clearBtn").onclick = () => {
-  assignments = {};
-  benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null };
-  selectedPlayerId = null;
-  renderPitch();
-  renderBench();
-  renderRoster();
-};
-
+document.getElementById("logoSelect").onchange = (e) => { document.getElementById("pitchLogo").src = e.target.value; };
+document.getElementById("playerCount").onchange = (e) => { playerCount = Number(e.target.value); formationKey = FORMATIONS[playerCount][0].key; assignments = {}; roles = {}; renderFormationOptions(); renderPitch(); renderBench(); renderRoster(); };
+document.getElementById("formationSelect").onchange = (e) => { formationKey = e.target.value; assignments = {}; roles = {}; renderPitch(); renderBench(); renderRoster(); };
+document.getElementById("clearBtn").onclick = () => { assignments = {}; roles = {}; benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null }; selectedPlayerId = null; renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("rosterSearch").oninput = renderRoster;
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    if (selectedPlayerId) { selectedPlayerId = null; renderRoster(); renderPitch(); renderBench(); }
-  }
-});
-
-document.getElementById("downloadBtn").onclick = () => {
+// Helper logic for capturing the clean UI
+async function generateCanvas() {
   const captureElement = document.getElementById("captureArea");
-
-  html2canvas(captureElement, {
-    useCORS: true,
-    backgroundColor: "#121614",
-    scale: 2,
+  captureElement.classList.add('export-mode');
+  // Wait for browser to recalculate styles
+  await new Promise(r => setTimeout(r, 100));
+  
+  const canvas = await html2canvas(captureElement, {
+    useCORS: true, backgroundColor: "#121614", scale: 2,
     onclone: (clonedDoc) => {
       const clonedPitch = clonedDoc.getElementById("pitchWrap");
-      if (clonedPitch) {
-        clonedPitch.style.background =
-          "linear-gradient(to bottom, #1e7a3d 0%, #1e7a3d 10%, #1a6d36 10%, #1a6d36 20%, #1e7a3d 20%, #1e7a3d 30%, #1a6d36 30%, #1a6d36 40%, #1e7a3d 40%, #1e7a3d 50%, #1a6d36 50%, #1a6d36 60%, #1e7a3d 60%, #1e7a3d 70%, #1a6d36 70%, #1a6d36 80%, #1e7a3d 80%, #1e7a3d 90%, #1a6d36 90%, #1a6d36 100%)";
-      }
+      if (clonedPitch) clonedPitch.style.background = "linear-gradient(to bottom, #1e7a3d 0%, #1e7a3d 10%, #1a6d36 10%, #1a6d36 20%, #1e7a3d 20%, #1e7a3d 30%, #1a6d36 30%, #1a6d36 40%, #1e7a3d 40%, #1e7a3d 50%, #1a6d36 50%, #1a6d36 60%, #1e7a3d 60%, #1e7a3d 70%, #1a6d36 70%, #1a6d36 80%, #1e7a3d 80%, #1e7a3d 90%, #1a6d36 90%, #1a6d36 100%)";
     }
-  }).then(canvas => {
-    const link = document.createElement("a");
-    link.download = "lineup.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
   });
+  
+  captureElement.classList.remove('export-mode');
+  return canvas;
+}
+
+document.getElementById("downloadBtn").onclick = async () => {
+  const btn = document.getElementById("downloadBtn");
+  btn.textContent = "⏳ Saving...";
+  const canvas = await generateCanvas();
+  const link = document.createElement("a");
+  link.download = "lineup.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+  btn.textContent = "📸 Save Image";
 };
+
+document.getElementById("discordBtn").onclick = async () => {
+  const webhookUrl = document.getElementById("webhookUrl").value.trim();
+  if(!webhookUrl) { alert("Please paste a Discord Webhook URL in the top right box first!"); return; }
+  
+  const btn = document.getElementById("discordBtn");
+  const ogText = btn.innerHTML;
+  btn.innerHTML = "⏳ Sending...";
+  btn.disabled = true;
+
+  try {
+    const canvas = await generateCanvas();
+    canvas.toBlob(async (blob) => {
+      const formData = new FormData();
+      formData.append('file', blob, 'lineup.png');
+      
+      const embedPayload = {
+        embeds: [{
+          title: "Manchester City | Lineup",
+          color: 7124206, // City Blue
+          image: { url: "attachment://lineup.png" }
+        }]
+      };
+      formData.append('payload_json', JSON.stringify(embedPayload));
+
+      const res = await fetch(webhookUrl, { method: 'POST', body: formData });
+      if(res.ok) alert("✅ Successfully sent to Discord!");
+      else alert("❌ Failed to send to Discord. Check your webhook URL.");
+      
+      btn.innerHTML = ogText;
+      btn.disabled = false;
+    });
+  } catch(e) {
+    console.error(e);
+    alert("Error taking screenshot");
+    btn.innerHTML = ogText;
+    btn.disabled = false;
+  }
+};
+
 
 async function init() {
   try {
     const res = await fetch('players.json');
     const data = await res.json();
     players = data.map((p, i) => ({ id: "p" + i, ...p }));
-  } catch (error) {
-    console.error("Could not load players.json:", error);
-    players = [];
-  }
+  } catch (error) { console.error("Could not load players.json"); }
   
-  renderPlayerCountOptions();
-  renderFormationOptions();
-  renderPitch();
-  renderBench();
-  renderRoster();
+  renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench(); renderRoster();
 }
-
 init();
 </script>
 </body>
