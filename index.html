@@ -197,10 +197,6 @@
   .roster-panel { width: 300px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; display: flex; flex-direction: column; height: 100%; }
   .roster-header { padding: 16px 16px 10px; border-bottom: 1px solid var(--panel-border); flex-shrink: 0;}
   .roster-header h2 { margin: 0 0 8px; font-size: 15px; }
-  
-  .add-player-row { display: flex; gap: 6px; margin-bottom: 10px; }
-  .add-player-row input { flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--panel-border); background: var(--paper); color: var(--ink); font-size: 12px;}
-  .add-player-btn { background: var(--accent); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; padding: 0 10px;}
 
   .roster-search { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-size: 13px; background: var(--paper); color: var(--ink); }
   .roster-list { overflow-y: auto; padding: 8px; flex: 1; }
@@ -210,9 +206,14 @@
   .roster-item.placed { opacity: 0.45; }
   .roster-avatar { width: 38px; height: 38px; border-radius: 50%; background: #2c3630; object-fit: cover; border: 1px solid #3d4a42; }
   .roster-info { min-width: 0; flex: 1; }
+  .roster-name-row { display: flex; align-items: center; gap: 4px; }
   .roster-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .roster-name.main-team { color: #dcb336; } 
   .roster-tag { font-size: 10.5px; color: var(--muted); }
+  .roster-star { color: #f2c94c; font-size: 12px; flex-shrink: 0; }
+
+  /* Star icon shown next to main-team players on the pitch and bench */
+  .pitch-star, .bench-star { color: #f2c94c; margin-right: 3px; font-size: 0.85em; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8)); }
 
   .hint-bar { padding: 10px 16px; border-top: 1px solid var(--panel-border); font-size: 12px; color: var(--muted); background: var(--paper); border-radius: 0 0 14px 14px; text-align: center; flex-shrink: 0;}
 
@@ -227,7 +228,7 @@
     transform: none !important;
     z-index: 9999 !important;
     flex-direction: row !important; /* Bench + pitch side by side, so nothing gets cropped */
-    width: 916px !important;
+    width: 980px !important;
     height: 808px !important;
     padding: 24px !important;
     background: #121614 !important;
@@ -237,7 +238,7 @@
     box-sizing: border-box !important;
   }
   .export-mode .pitch-wrap {
-    width: 656px !important; /* A bit wider than the live on-screen pitch, export-only */
+    width: 720px !important; /* Wider than before, export-only — the live on-screen pitch is unaffected */
     height: 750px !important;
     aspect-ratio: auto !important;
   }
@@ -377,10 +378,6 @@
   <aside class="roster-panel">
     <div class="roster-header">
       <h2>Roster</h2>
-      <div class="add-player-row">
-        <input type="text" id="newRobloxUser" placeholder="Roblox username...">
-        <button class="add-player-btn" id="addRobloxBtn" title="Add live Avatar">+</button>
-      </div>
       <input type="text" class="roster-search" id="rosterSearch" placeholder="Search players...">
     </div>
     <div class="roster-list" id="rosterList"></div>
@@ -520,7 +517,10 @@ function renderPitch() {
     const posLabel = document.createElement("div"); posLabel.className = "slot-pos"; posLabel.textContent = slot.label; div.appendChild(posLabel);
 
     if (player) {
-      const nameLabel = document.createElement("div"); nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : ""); nameLabel.textContent = player.name; div.appendChild(nameLabel);
+      const nameLabel = document.createElement("div"); nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : "");
+      if (player.mainTeam) { const star = document.createElement("span"); star.className = "pitch-star"; star.textContent = "★"; nameLabel.appendChild(star); }
+      nameLabel.appendChild(document.createTextNode(player.name));
+      div.appendChild(nameLabel);
     }
 
     // Left Click Assignment
@@ -563,7 +563,12 @@ function renderBench() {
     }
 
     div.appendChild(badge);
-    if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "bench-slot-name"; nameLabel.textContent = player.name; div.appendChild(nameLabel); }
+    if (player) {
+      const nameLabel = document.createElement("div"); nameLabel.className = "bench-slot-name";
+      if (player.mainTeam) { const star = document.createElement("span"); star.className = "bench-star"; star.textContent = "★"; nameLabel.appendChild(star); }
+      nameLabel.appendChild(document.createTextNode(player.name));
+      div.appendChild(nameLabel);
+    }
     div.onclick = () => onBenchSlotClick(slotId);
     layer.appendChild(div);
   });
@@ -614,11 +619,14 @@ function renderRoster() {
       if (p.avatar) img.src = p.avatar;
       
       const info = document.createElement("div"); info.className = "roster-info";
+      const nameRow = document.createElement("div"); nameRow.className = "roster-name-row";
+      if (p.mainTeam) { const star = document.createElement("span"); star.className = "roster-star"; star.textContent = "★"; nameRow.appendChild(star); }
       const nameEl = document.createElement("div"); nameEl.className = "roster-name" + (p.mainTeam ? " main-team" : ""); nameEl.textContent = p.name;
+      nameRow.appendChild(nameEl);
       const tagEl = document.createElement("div"); tagEl.className = "roster-tag";
       tagEl.textContent = benchIds.has(p.id) ? "On bench" : (placedIds.has(p.id) ? "On pitch" : (p.mainTeam ? "Main Team" : "Squad"));
       
-      info.appendChild(nameEl); info.appendChild(tagEl);
+      info.appendChild(nameRow); info.appendChild(tagEl);
       item.appendChild(img); item.appendChild(info);
 
       item.onclick = () => { selectedPlayerId = (selectedPlayerId === p.id) ? null : p.id; renderRoster(); renderPitch(); };
@@ -626,43 +634,18 @@ function renderRoster() {
     });
 }
 
-// Live Roblox Avatar API call
-document.getElementById("addRobloxBtn").onclick = async () => {
-  const input = document.getElementById('newRobloxUser');
-  const name = input.value.trim();
-  const btn = document.getElementById('addRobloxBtn');
-  if(!name) return;
-  
-  btn.textContent = "...";
-  try {
-    const userRes = await fetch('https://users.roproxy.com/v1/usernames/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usernames: [name], excludeBannedUsers: false })
-    });
-    const userData = await userRes.json();
-    if(userData.data && userData.data.length > 0) {
-      const id = userData.data[0].id;
-      const thumbRes = await fetch(`https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${id}&size=150x150&format=Png&isCircular=true`);
-      const thumbData = await thumbRes.json();
-      if(thumbData.data && thumbData.data.length > 0) {
-         players.push({ id: "p_" + Date.now(), name: name, mainTeam: true, avatar: thumbData.data[0].imageUrl });
-         renderRoster();
-         input.value = '';
-      }
-    } else {
-      alert("Roblox user not found!");
-    }
-  } catch(e) { console.error(e); alert("Network error fetching player avatar."); }
-  btn.textContent = "+";
-};
-
 
 document.getElementById("logoSelect").onchange = (e) => { document.getElementById("pitchLogo").src = e.target.value; };
 document.getElementById("playerCount").onchange = (e) => { playerCount = Number(e.target.value); formationKey = FORMATIONS[playerCount][0].key; assignments = {}; roles = {}; renderFormationOptions(); renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("formationSelect").onchange = (e) => { formationKey = e.target.value; assignments = {}; roles = {}; renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("clearBtn").onclick = () => { assignments = {}; roles = {}; benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null }; selectedPlayerId = null; renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("rosterSearch").oninput = renderRoster;
+
+// Persist the webhook URL locally so it doesn't need to be re-pasted on every visit
+document.getElementById("webhookUrl").addEventListener("input", (e) => {
+  try { localStorage.setItem("lineupPlanner_webhookUrl", e.target.value.trim()); }
+  catch (err) { console.warn("Could not save webhook to localStorage:", err); }
+});
 
 // EXPORT FUNCTION: Forces fixed dimensions for bug-free html2canvas capture
 async function generateCanvas() {
@@ -787,7 +770,13 @@ async function init() {
     const data = await res.json();
     players = data.map((p, i) => ({ id: "p" + i, ...p }));
   } catch (error) { console.error("Could not load players.json"); }
-  
+
+  // Restore a previously saved Discord webhook URL, so it doesn't need to be re-pasted every visit
+  try {
+    const savedWebhook = localStorage.getItem("lineupPlanner_webhookUrl");
+    if (savedWebhook) document.getElementById("webhookUrl").value = savedWebhook;
+  } catch (e) { console.warn("Could not read saved webhook from localStorage:", e); }
+
   renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench(); renderRoster();
 }
 init();
