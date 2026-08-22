@@ -227,7 +227,7 @@
     transform: none !important;
     z-index: 9999 !important;
     flex-direction: row !important; /* Bench + pitch side by side, so nothing gets cropped */
-    width: 860px !important;
+    width: 916px !important;
     height: 808px !important;
     padding: 24px !important;
     background: #121614 !important;
@@ -237,7 +237,7 @@
     box-sizing: border-box !important;
   }
   .export-mode .pitch-wrap {
-    width: 600px !important;
+    width: 656px !important; /* A bit wider than the live on-screen pitch, export-only */
     height: 750px !important;
     aspect-ratio: auto !important;
   }
@@ -751,53 +751,15 @@ document.getElementById("discordBtn").onclick = async () => {
       try {
         const teamName = document.getElementById("logoSelect").selectedOptions[0].textContent.trim();
         const logoUrl = absoluteUrl(document.getElementById("pitchLogo").src);
-        const matchName = document.getElementById("outName").textContent;
-        const matchType = document.getElementById("outType").textContent;
-        const matchTime = document.getElementById("outTime").textContent;
 
         const formData = new FormData();
-        formData.append('files[0]', blob, 'lineup.png');
+        formData.append('file', blob, 'lineup.png');
+        formData.append('payload_json', JSON.stringify({
+          username: teamName + " | Lineup",
+          avatar_url: logoUrl
+        }));
 
-        // Discord Components V2 payload.
-        // IS_COMPONENTS_V2 flag = 1 << 15 = 32768
-        // When using Components V2, top-level "content"/"embeds" are dropped in favor of "components",
-        // and each component needs its own numeric "type" (Container=17, Text Display=10, Media Gallery=12, Separator=14).
-        const payload = {
-          username: teamName + " | Lineup Bot",
-          avatar_url: logoUrl,
-          flags: 32768,
-          components: [
-            {
-              type: 17, // Container
-              accent_color: 7124206, // City sky blue
-              components: [
-                { type: 10, content: "## " + teamName + " | Lineup" },
-                { type: 10, content: "**" + matchName + "**\n" + matchType + " • " + matchTime },
-                { type: 14 }, // Separator
-                {
-                  type: 12, // Media Gallery
-                  items: [ { media: { url: "attachment://lineup.png" } } ]
-                }
-              ]
-            }
-          ]
-        };
-        formData.append('payload_json', JSON.stringify(payload));
-
-        let res = await postToDiscord(webhookUrl, formData);
-
-        if (!res.ok) {
-          // Fall back to a classic embed if the server doesn't accept Components V2
-          console.warn("Components V2 send failed (" + res.status + "), falling back to embed.");
-          const fallbackForm = new FormData();
-          fallbackForm.append('file', blob, 'lineup.png');
-          fallbackForm.append('payload_json', JSON.stringify({
-            username: teamName + " | Lineup Bot",
-            avatar_url: logoUrl,
-            embeds: [{ title: teamName + " | Lineup", description: matchName + "\n" + matchType + " • " + matchTime, color: 7124206, image: { url: "attachment://lineup.png" } }]
-          }));
-          res = await postToDiscord(webhookUrl, fallbackForm);
-        }
+        const res = await postToDiscord(webhookUrl, formData);
 
         if (res.ok) alert("✅ Successfully sent to Discord!");
         else alert("❌ Discord rejected the request (status " + res.status + "). Double check your webhook URL is correct and still active.");
