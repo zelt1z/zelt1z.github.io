@@ -609,7 +609,7 @@ function renderRoster() {
       
       const info = document.createElement("div"); info.className = "roster-info";
       const nameRow = document.createElement("div"); nameRow.className = "roster-name-row";
-      if (p.mainTeam) { const star = document.createElement("span"); star.className = "roster-star"; star.textContent = "★"; nameRow.appendChild(star); }
+      //if (p.mainTeam) { const star = document.createElement("span"); star.className = "roster-star"; star.textContent = "★"; nameRow.appendChild(star); }
       const nameEl = document.createElement("div"); nameEl.className = "roster-name" + (p.mainTeam ? " main-team" : ""); nameEl.textContent = p.name;
       nameRow.appendChild(nameEl);
       const tagEl = document.createElement("div"); tagEl.className = "roster-tag";
