@@ -11,6 +11,7 @@
   { "name": "JOJO", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-CA7B4C55F9E71AD8EDC98B753ED9D0EC-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Yassine Bouno", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-B059B2E047C4ABFBCB974FE0AD20633E-Png-Background/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Luh Mike", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-48F8CBCA24EB283E072F49066E32096E-Png/150/150/AvatarHeadshot/Webp/noFilter" },
+  { "name": "abdollh", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-C9FD69E0684CDEEDD8539A609DD32F0E-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Rohan", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-6A512342A545259DDD260B26304898C3-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Naseem", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-69C8DB374DF411FBF76BB38B740D2ADD-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Mastro", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-468E0D37A98FB8806C38B1198D83E893-Png/150/150/AvatarHeadshot/Webp/noFilter" },
@@ -23,9 +24,9 @@
   { "name": "Kx1bel", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-2C465D5957EC60C94CB6A1BEEE8D52AB-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Itaninja", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-555D551B261A0DE12C89627BB1CC5F5F-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "bandobaby", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-B07202290861B4159DA46776994B611F-Png/150/150/AvatarHeadshot/Webp/noFilter" },
-  { "name": "Mustard", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-99EE954C2A89A309559BBBAF86AE637A-Png/150/150/AvatarHeadshot/Webp/noFilter" },
+  { "name": "Mustard", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-99EE954C2A89A309559BBBAF86AE637A-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "benji", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-B567763E44EBB3BC87294A951E80F3D8-Png-Background/150/150/AvatarHeadshot/Webp/noFilter" },
-  { "name": "ric", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-2B20279BB2C13F7B5075D00C0A1407CA-Png/150/150/AvatarHeadshot/Webp/noFilter" },
+  { "name": "ric", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-2B20279BB2C13F7B5075D00C0A1407CA-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "HAVOC_HAZE", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-ECA729AEB77BEF5346C718CA215CF93F-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Rebzy", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-B7C44E80EE422E56805020E663D8BDE6-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "skizer", "mainTeam": true, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-0B740F31AB50B97D979D4870E840264E-Png/150/150/AvatarHeadshot/Webp/noFilter" },
@@ -33,6 +34,6 @@
   { "name": "Kawasaki", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-01DA75A4E4B4B81CE257F76DF206A672-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Samuel", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-01DA75A4E4B4B81CE257F76DF206A672-Png/150/150/AvatarHeadshot/Webp/noFilter" },
   { "name": "Harlz", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-01DA75A4E4B4B81CE257F76DF206A672-Png/150/150/AvatarHeadshot/Webp/noFilter" },
-  { "name": "Lorenzo", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-29F19AA0F90F6B5BD82F95B80655B41A-Png/150/150/AvatarHeadshot/Webp/noFilter" }
-
+  { "name": "Lorenzo", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-29F19AA0F90F6B5BD82F95B80655B41A-Png/150/150/AvatarHeadshot/Webp/noFilter" },
+  { "name": "Hasnain", "mainTeam": false, "avatar": "https://tr.rbxcdn.com/30DAY-AvatarHeadshot-0E96E9E4FE7392883505F91ECBBAB5A5-Png/150/150/AvatarHeadshot/Webp/noFilter" }
 ]
