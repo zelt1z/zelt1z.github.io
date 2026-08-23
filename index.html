@@ -184,6 +184,19 @@
   .remove-x, .bench-remove-x { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 14px; line-height: 22px; text-align: center; display: none; z-index: 6; }
   .slot.filled:hover .remove-x, .bench-slot.filled:hover .bench-remove-x { display: block; }
 
+  /* Drawing Canvas */
+  #drawingCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Disabled by default */
+  }
+  #drawingCanvas.active {
+    pointer-events: auto;
+    cursor: crosshair;
+  }
+
   /* Export Action Buttons */
   .actions-row { display: flex; gap: 12px; margin-top: 4px; flex-shrink: 0;}
   .download-btn { background: var(--panel); color: var(--ink); border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px 20px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
@@ -276,6 +289,8 @@
         <select id="formationSelect"></select>
       </div>
       <button class="ghost" id="clearBtn">Clear pitch</button>
+      <button class="ghost" id="drawToggleBtn">🖍 Draw: OFF</button>
+      <button class="ghost" id="clearDrawBtn">🗑 Clear Ink</button>
     </div>
   </div>
 
@@ -349,6 +364,10 @@
           <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
           <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
         </svg>
+
+        <!-- Fixed Internal Resolution to match export scale exact layout, prevents canvas reset crashes -->
+        <canvas id="drawingCanvas" width="720" height="750"></canvas>
+        
         <div id="slotsLayer"></div>
       </div>
 
@@ -625,6 +644,73 @@ document.getElementById("playerCount").onchange = (e) => { playerCount = Number(
 document.getElementById("formationSelect").onchange = (e) => { formationKey = e.target.value; assignments = {}; roles = {}; renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("clearBtn").onclick = () => { assignments = {}; roles = {}; benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null }; selectedPlayerId = null; renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("rosterSearch").oninput = renderRoster;
+
+// --- DRAWING MODE LOGIC ---
+const drawingCanvas = document.getElementById('drawingCanvas');
+const ctx = drawingCanvas.getContext('2d');
+let isDrawingMode = false;
+let isDrawing = false;
+
+ctx.strokeStyle = '#ffff00'; // Tactical yellow marker
+ctx.lineWidth = 6;
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+
+document.getElementById('drawToggleBtn').onclick = (e) => {
+  isDrawingMode = !isDrawingMode;
+  e.target.textContent = isDrawingMode ? "🖍 Draw: ON" : "🖍 Draw: OFF";
+  e.target.style.color = isDrawingMode ? "var(--main-team)" : "";
+  e.target.style.borderColor = isDrawingMode ? "var(--main-team)" : "";
+  if (isDrawingMode) drawingCanvas.classList.add('active');
+  else drawingCanvas.classList.remove('active');
+};
+
+document.getElementById('clearDrawBtn').onclick = () => {
+  ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+};
+
+// Accurately map pointer coordinates back to the strict 720x750 export resolution
+function getDrawPos(e) {
+  const rect = drawingCanvas.getBoundingClientRect();
+  const scaleX = drawingCanvas.width / rect.width;
+  const scaleY = drawingCanvas.height / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+function startDrawing(e) {
+  if (!isDrawingMode) return;
+  e.preventDefault();
+  isDrawing = true;
+  const pos = getDrawPos(e);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+}
+
+function drawPointer(e) {
+  if (!isDrawing || !isDrawingMode) return;
+  e.preventDefault();
+  const pos = getDrawPos(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+}
+
+function stopDrawing() {
+  isDrawing = false;
+}
+
+drawingCanvas.addEventListener('mousedown', startDrawing);
+drawingCanvas.addEventListener('mousemove', drawPointer);
+window.addEventListener('mouseup', stopDrawing);
+
+drawingCanvas.addEventListener('touchstart', startDrawing, {passive: false});
+drawingCanvas.addEventListener('touchmove', drawPointer, {passive: false});
+window.addEventListener('touchend', stopDrawing);
+
 
 // Persist the webhook URL locally so it doesn't need to be re-pasted on every visit
 document.getElementById("webhookUrl").addEventListener("input", (e) => {
