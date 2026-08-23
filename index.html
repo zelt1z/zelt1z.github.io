@@ -53,9 +53,14 @@
   }
 
   .header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
   .brand h1 { font-size: 19px; margin: 0; letter-spacing: 0.2px; font-weight: 700; }
   
+  .tab-container { display: flex; gap: 4px; background: #121614; padding: 4px; border-radius: 8px; border: 1px solid var(--panel-border);}
+  .tab-btn { background: transparent; color: var(--muted); border: none; padding: 6px 14px; font-weight: 700; cursor: pointer; border-radius: 6px; font-size: 12px; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;}
+  .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+  .tab-btn:hover:not(.active) { color: #fff; }
+
   .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .control-group { display: flex; align-items: center; gap: 8px; background: var(--paper); border: 1px solid var(--panel-border); border-radius: 8px; padding: 4px 10px; }
   .control-group label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
@@ -77,9 +82,12 @@
     gap: 20px;
     padding: 16px 24px 20px;
     align-items: stretch;
-    min-height: 0; /* Critical to allow shrinking */
+    min-height: 0; 
   }
 
+  /* View Containers */
+  .view-container { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  
   .pitch-column {
     flex: 1;
     min-width: 0;
@@ -104,15 +112,15 @@
 
   /* Bench Layout */
   .bench-wrap {
-    order: -1; /* Visually places bench on the left, before the pitch */
+    order: -1; 
     position: relative;
-    height: 100%; /* Matches pitch height natively */
+    height: 100%; 
     width: 132px;
     flex-shrink: 0;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    background: #161c19; /* Removed gradient to prevent crash */
+    background: #161c19; 
     border: 1px solid var(--panel-border);
     display: flex;
     flex-direction: column;
@@ -142,7 +150,7 @@
     border-radius: 18px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    background: #1a6d36; /* Removed CSS Gradient to fix Canvas Crash */
+    background: #1a6d36; 
   }
 
   .pitch-watermark {
@@ -152,8 +160,8 @@
     width: 46%; height: auto;
     max-width: 320px;
     object-fit: contain;
-    z-index: 3; /* Sits above the striped turf SVG so the crest reads as one solid image, not sliced by the stripes */
-    opacity: 0.22; /* Blended into the turf like a real pitch crest */
+    z-index: 3; 
+    opacity: 0.22; 
     pointer-events: none;
     filter: drop-shadow(0 2px 10px rgba(0,0,0,0.35));
   }
@@ -184,13 +192,49 @@
   .remove-x, .bench-remove-x { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 14px; line-height: 22px; text-align: center; display: none; z-index: 6; }
   .slot.filled:hover .remove-x, .bench-slot.filled:hover .bench-remove-x { display: block; }
 
+  /* TOTW View */
+  #totwView {
+    background: radial-gradient(circle at center, #1e2621 0%, #121614 100%);
+    border: 1px solid var(--panel-border);
+    border-radius: 18px;
+    padding: 30px;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.3);
+  }
+  
+  .totw-header-title { font-size: 26px; font-weight: 900; color: #f2b90c; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 4px 12px rgba(0,0,0,0.6); margin-bottom: -10px; }
+  .totw-board { display: flex; flex-direction: column; align-items: center; gap: 50px; width: 100%;}
+  .totw-row { display: flex; gap: 60px; justify-content: center; width: 100%; flex-wrap: wrap;}
+  
+  .totw-slot { display: flex; flex-direction: column; align-items: center; cursor: pointer; gap: 6px; position: relative; user-select: none;}
+  .totw-badge { width: 110px; height: 110px; border-radius: 50%; background: var(--slot-empty); border: 3px dashed var(--slot-empty-border); display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 8px 16px rgba(0,0,0,0.4); transition: transform 0.2s; }
+  
+  .totw-slot:hover .totw-badge { transform: scale(1.05); }
+  .totw-slot.filled .totw-badge { border-style: solid; border-color: #f2b90c; background: #10230f; box-shadow: 0 0 20px rgba(242, 185, 12, 0.2); }
+  .totw-slot.filled .totw-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  
+  .totw-slot.big-slot .totw-badge { width: 160px; height: 160px; border-color: #ffd700; border-width: 4px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);}
+  
+  .crown-tag { position: absolute; top: -16px; font-size: 12px; font-weight: 800; color: #ffd700; background: #1a1500; padding: 4px 12px; border-radius: 12px; border: 1px solid #f2b90c; text-transform: uppercase; box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 10; white-space: nowrap; letter-spacing: 0.5px;}
+  .totw-slot.big-slot .crown-tag { top: -20px; font-size: 15px; padding: 6px 16px; border-color: #ffd700; }
+  
+  .totw-empty-icon { font-size: 40px; color: rgba(255,255,255,0.4); }
+  .totw-name { font-size: 17px; font-weight: 800; color: var(--main-team); text-transform: uppercase; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9)); margin-top: 4px; text-align: center; -webkit-text-stroke: 3.5px #0a0e0b; paint-order: stroke fill;}
+  .totw-slot.big-slot .totw-name { font-size: 20px; margin-top: 8px;}
+  
+  .totw-remove-x { position: absolute; top: 0px; right: 0px; width: 26px; height: 26px; border-radius: 50%; background: #d13b3b; color: #fff; font-size: 15px; line-height: 26px; text-align: center; display: none; z-index: 12; }
+  .totw-slot.big-slot .totw-remove-x { top: 8px; right: 8px; width: 30px; height: 30px; font-size: 18px; line-height: 30px;}
+  .totw-slot.filled:hover .totw-remove-x { display: block; }
+
   /* Drawing Canvas */
   #drawingCanvas {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 10;
-    pointer-events: none; /* Disabled by default */
+    pointer-events: none;
   }
   #drawingCanvas.active {
     pointer-events: auto;
@@ -220,20 +264,15 @@
   .roster-name.main-team { color: #dcb336; } 
   .roster-tag { font-size: 10.5px; color: var(--muted); }
   
-
   .hint-bar { padding: 10px 16px; border-top: 1px solid var(--panel-border); font-size: 12px; color: var(--muted); background: var(--paper); border-radius: 0 0 14px 14px; text-align: center; flex-shrink: 0;}
 
-  /* 
-    STRICT EXPORT MODE
-    Takes element out of flow and forces fixed pixel sizes.
-    Guarantees html2canvas parses a perfect image without NaN errors.
-  */
+  /* STRICT EXPORT MODE */
   .export-mode {
     position: absolute !important;
     top: 0 !important; left: 0 !important;
     transform: none !important;
     z-index: 9999 !important;
-    flex-direction: row !important; /* Bench + pitch side by side, so nothing gets cropped */
+    flex-direction: row !important;
     width: 980px !important;
     height: 808px !important;
     padding: 24px !important;
@@ -244,7 +283,7 @@
     box-sizing: border-box !important;
   }
   .export-mode .pitch-wrap {
-    width: 720px !important; /* Wider than before, export-only — the live on-screen pitch is unaffected */
+    width: 720px !important;
     height: 750px !important;
     aspect-ratio: auto !important;
   }
@@ -270,9 +309,13 @@
   <div class="header-row">
     <div class="brand">
       <h1>⚽ Manchester City</h1>
-      <span class="sub" style="font-size: 12.5px; color: var(--muted);">Lineup planner</span>
+      <div class="tab-container">
+        <button id="tabLineup" class="tab-btn active">Lineup Builder</button>
+        <button id="tabTotw" class="tab-btn">Players of the Week</button>
+      </div>
     </div>
-    <div class="controls">
+    
+    <div class="controls" id="lineupControls1">
       <div class="control-group">
         <label>Team</label>
         <select id="logoSelect">
@@ -294,7 +337,7 @@
     </div>
   </div>
 
-  <div class="header-row">
+  <div class="header-row" id="lineupControls2">
     <div class="controls">
       <div class="control-group">
         <label>Match</label>
@@ -320,73 +363,94 @@
 </header>
 
 <main>
-  <div class="pitch-column">
-    <div class="capture-area" id="captureArea">
-      
-      <div class="pitch-wrap" id="pitchWrap">
-        <!-- Large, semi-transparent crest centered on the pitch, blended into the turf -->
-        <img src="logo.png" alt="Logo" class="pitch-watermark" id="pitchLogo">
-
-        <!-- Match Overlay Texts -->
-        <div class="match-overlay">
-          <div class="m-title" id="outName">Manchester City vs Opponent</div>
-          <div class="m-type" id="outType">League Game</div>
-          <div class="m-time" id="outTime">8:00 PM UK TIME</div>
+  <!-- LINEUP BUILDER VIEW -->
+  <div class="view-container" id="lineupView">
+    <div class="pitch-column">
+      <div class="capture-area" id="captureArea">
+        <div class="pitch-wrap" id="pitchWrap">
+          <img src="logo.png" alt="Logo" class="pitch-watermark" id="pitchLogo">
+          <div class="match-overlay">
+            <div class="m-title" id="outName">Manchester City vs Opponent</div>
+            <div class="m-type" id="outType">League Game</div>
+            <div class="m-time" id="outTime">8:00 PM UK TIME</div>
+          </div>
+          <div class="manager-sig">Manager: Naseem</div>
+          <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
+            <g>
+              <rect x="0" y="0" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="80" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="160" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="240" width="300" height="40" fill="#1e7a3d" />
+              <rect x="0" y="320" width="300" height="40" fill="#1e7a3d" />
+            </g>
+            <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <circle cx="150" cy="200" r="2" fill="rgba(255,255,255,0.85)"/>
+            <rect x="70" y="4" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <rect x="110" y="4" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <rect x="70" y="341" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <rect x="110" y="374" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+            <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+          </svg>
+          <canvas id="drawingCanvas" width="720" height="750"></canvas>
+          <div id="slotsLayer"></div>
         </div>
 
-        <div class="manager-sig">Manager: Naseem</div>
-
-        <!-- 
-          SVG PITCH WITH BUILT-IN STRIPES
-          This replaces CSS background gradients, 100% fixing the canvas crash.
-        -->
-        <svg class="pitch-lines" viewBox="0 0 300 400" preserveAspectRatio="none">
-          <g>
-            <rect x="0" y="0" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="80" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="160" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="240" width="300" height="40" fill="#1e7a3d" />
-            <rect x="0" y="320" width="300" height="40" fill="#1e7a3d" />
-          </g>
-          
-          <rect x="4" y="4" width="292" height="392" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <line x1="4" y1="200" x2="296" y2="200" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <circle cx="150" cy="200" r="36" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <circle cx="150" cy="200" r="2" fill="rgba(255,255,255,0.85)"/>
-          <rect x="70" y="4" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <rect x="110" y="4" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 115 59 A 36 36 0 0 0 185 59" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <rect x="70" y="341" width="160" height="55" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <rect x="110" y="374" width="80" height="22" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 115 341 A 36 36 0 0 1 185 341" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 4 14 A 10 10 0 0 0 14 4" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 286 4 A 10 10 0 0 0 296 14" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 4 386 A 10 10 0 0 1 14 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-          <path d="M 296 386 A 10 10 0 0 1 286 396" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
-        </svg>
-
-        <!-- Fixed Internal Resolution to match export scale exact layout, prevents canvas reset crashes -->
-        <canvas id="drawingCanvas" width="720" height="750"></canvas>
-        
-        <div id="slotsLayer"></div>
+        <div class="bench-wrap" id="benchWrap">
+          <div class="bench-title">Bench</div>
+          <div class="bench-slots" id="benchSlotsLayer"></div>
+        </div>
       </div>
 
-      <div class="bench-wrap" id="benchWrap">
-        <div class="bench-title">Bench</div>
-        <div class="bench-slots" id="benchSlotsLayer"></div>
+      <div class="actions-row">
+        <button class="download-btn" id="downloadBtn">📸 Save Image</button>
+        <button class="action-btn discord" id="discordBtn">
+          <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#fff"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.51,80.21h0A105.73,105.73,0,0,0,32.79,96.36a77.7,77.7,0,0,0,6.89-11.1,77.42,77.42,0,0,1-11.07-5.22c.81-.62,1.61-1.25,2.37-1.92A74.45,74.45,0,0,0,63.57,85.22a74.19,74.19,0,0,0,32.55-7.1c.78.68,1.58,1.31,2.4,1.94a77.54,77.54,0,0,1-11.12,5.2,78.53,78.53,0,0,0,6.92,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.2,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+          Send to Discord
+        </button>
       </div>
-
-    </div>
-
-    <div class="actions-row">
-      <button class="download-btn" id="downloadBtn">📸 Save Image</button>
-      <button class="action-btn discord" id="discordBtn">
-        <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="#fff"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.51,80.21h0A105.73,105.73,0,0,0,32.79,96.36a77.7,77.7,0,0,0,6.89-11.1,77.42,77.42,0,0,1-11.07-5.22c.81-.62,1.61-1.25,2.37-1.92A74.45,74.45,0,0,0,63.57,85.22a74.19,74.19,0,0,0,32.55-7.1c.78.68,1.58,1.31,2.4,1.94a77.54,77.54,0,0,1-11.12,5.2,78.53,78.53,0,0,0,6.92,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.2,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
-        Send to Discord
-      </button>
     </div>
   </div>
 
+  <!-- TEAM OF THE WEEK VIEW -->
+  <div class="view-container" id="totwView" style="display: none;">
+    <div class="totw-header-title">⭐ Players of the Week ⭐</div>
+    <div class="totw-board">
+      
+      <!-- Top Row: Top Player -->
+      <div class="totw-row">
+        <div class="totw-slot big-slot" id="T_TOP">
+          <div class="crown-tag">👑 Top Player</div>
+          <div class="totw-badge"></div>
+        </div>
+      </div>
+      
+      <!-- Bottom Row: Best Def, Mid, Att -->
+      <div class="totw-row">
+        <div class="totw-slot" id="T_DEF">
+          <div class="crown-tag">🛡️ Best Defender</div>
+          <div class="totw-badge"></div>
+        </div>
+        <div class="totw-slot" id="T_MID">
+          <div class="crown-tag">🪄 Best Midfielder</div>
+          <div class="totw-badge"></div>
+        </div>
+        <div class="totw-slot" id="T_ATT">
+          <div class="crown-tag">⚔️ Best Attacker</div>
+          <div class="totw-badge"></div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- ROSTER SIDEBAR (Shared) -->
   <aside class="roster-panel">
     <div class="roster-header">
       <h2>Roster</h2>
@@ -394,12 +458,13 @@
     </div>
     <div class="roster-list" id="rosterList"></div>
     <div class="hint-bar">
-      <b>Tip:</b> Click player, then pitch slot. <b>Right-click</b> pitch slots for Capt/VC.
+      <b>Tip:</b> Click player, then assign them.
     </div>
   </aside>
 </main>
 
 <script>
+// --- STATE & DATA ---
 const FORMATIONS = {
   5: [{ key: "1-2-1", rows: [1, 2, 1] }, { key: "1-1-2", rows: [1, 1, 2] }, { key: "2-1-1", rows: [2, 1, 1] }, { key: "1-3", rows: [1, 3] }],
   6: [{ key: "2-2-1", rows: [2, 2, 1] }, { key: "1-3-1", rows: [1, 3, 1] }, { key: "2-1-2", rows: [2, 1, 2] }, { key: "1-2-2", rows: [1, 2, 2] }],
@@ -415,16 +480,50 @@ let playerCount = 7;
 let formationKey = FORMATIONS[7][0].key;
 let assignments = {};       
 let benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null };
-let roles = {}; // Stores Captain (C) / Vice (VC) data
+let totwAssignments = { T_TOP: null, T_DEF: null, T_MID: null, T_ATT: null }; // New TOTW state
+let roles = {}; 
 let selectedPlayerId = null;
+let currentTab = 'lineup';
+
+// Load TOTW from localStorage
+try {
+  const savedTotw = localStorage.getItem("squadBuilder_totw");
+  if (savedTotw) totwAssignments = JSON.parse(savedTotw);
+} catch(e) { console.warn("Failed to load TOTW data"); }
+
+function saveTotw() {
+  try { localStorage.setItem("squadBuilder_totw", JSON.stringify(totwAssignments)); } catch(e) {}
+}
+
+// --- TABS LOGIC ---
+document.getElementById('tabLineup').onclick = () => {
+  currentTab = 'lineup';
+  document.getElementById('tabLineup').classList.add('active');
+  document.getElementById('tabTotw').classList.remove('active');
+  document.getElementById('lineupView').style.display = 'flex';
+  document.getElementById('totwView').style.display = 'none';
+  document.getElementById('lineupControls1').style.display = 'flex';
+  document.getElementById('lineupControls2').style.display = 'flex';
+  renderRoster();
+};
+
+document.getElementById('tabTotw').onclick = () => {
+  currentTab = 'totw';
+  document.getElementById('tabTotw').classList.add('active');
+  document.getElementById('tabLineup').classList.remove('active');
+  document.getElementById('lineupView').style.display = 'none';
+  document.getElementById('totwView').style.display = 'flex';
+  document.getElementById('lineupControls1').style.display = 'none';
+  document.getElementById('lineupControls2').style.display = 'none';
+  renderRoster();
+};
+
 
 // Match details bindings
 const ids = ['matchNameIn', 'matchTypeIn', 'matchTimeIn'];
 const outs = ['outName', 'outType', 'outTime'];
 ids.forEach((id, i) => {
-  document.getElementById(id).addEventListener('input', (e) => {
-    document.getElementById(outs[i]).textContent = e.target.value;
-  });
+  document.getElementById(id).addEventListener('input', (e) => { document.getElementById(outs[i]).textContent = e.target.value; });
 });
 
 function buildSlots(rows) {
@@ -491,14 +590,12 @@ function renderPitch() {
 
   slots.forEach(slot => {
     const coord = coords[slot.id];
-    const div = document.createElement("div");
-    div.className = "slot";
+    const div = document.createElement("div"); div.className = "slot";
     div.style.left = (coord.x / 300 * 100) + "%"; div.style.top = (coord.y / 400 * 100) + "%";
 
     const playerId = assignments[slot.id];
     const player = playerId ? players.find(p => p.id === playerId) : null;
-    const badge = document.createElement("div");
-    badge.className = "slot-badge";
+    const badge = document.createElement("div"); badge.className = "slot-badge";
 
     if (player) {
       div.classList.add("filled");
@@ -507,38 +604,24 @@ function renderPitch() {
       } else {
         badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize="20px";
       }
-      
-      // Captain/VC Role badge
       if (roles[slot.id]) {
-        const capBadge = document.createElement("div");
-        capBadge.className = "cap-badge";
-        capBadge.textContent = roles[slot.id];
-        badge.appendChild(capBadge);
+        const capBadge = document.createElement("div"); capBadge.className = "cap-badge"; capBadge.textContent = roles[slot.id]; badge.appendChild(capBadge);
       }
-
-      const removeX = document.createElement("div");
-      removeX.className = "remove-x"; removeX.textContent = "×";
+      const removeX = document.createElement("div"); removeX.className = "remove-x"; removeX.textContent = "×";
       removeX.onclick = (e) => { e.stopPropagation(); delete assignments[slot.id]; delete roles[slot.id]; renderPitch(); renderRoster(); };
       div.appendChild(removeX);
     } else {
-      const icon = document.createElement("div"); icon.className = "empty-icon"; icon.textContent = "+";
-      badge.appendChild(icon);
+      const icon = document.createElement("div"); icon.className = "empty-icon"; icon.textContent = "+"; badge.appendChild(icon);
     }
 
     div.appendChild(badge);
     const posLabel = document.createElement("div"); posLabel.className = "slot-pos"; posLabel.textContent = slot.label; div.appendChild(posLabel);
+    if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : ""); nameLabel.textContent = player.name; div.appendChild(nameLabel); }
 
-    if (player) {
-      const nameLabel = document.createElement("div"); nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : ""); nameLabel.textContent = player.name; div.appendChild(nameLabel);
-    }
-
-    // Left Click Assignment
     div.onclick = () => onSlotClick(slot.id);
-    
-    // Right Click Roles
     div.oncontextmenu = (e) => {
       e.preventDefault(); e.stopPropagation();
-      if (!player) return; // Only if slot has player
+      if (!player) return; 
       if (roles[slot.id] === 'C') roles[slot.id] = 'VC';
       else if (roles[slot.id] === 'VC') delete roles[slot.id];
       else roles[slot.id] = 'C';
@@ -570,7 +653,6 @@ function renderBench() {
     } else {
       const icon = document.createElement("div"); icon.className = "bench-empty-icon"; icon.textContent = "+"; badge.appendChild(icon);
     }
-
     div.appendChild(badge);
     if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "bench-slot-name"; nameLabel.textContent = player.name; div.appendChild(nameLabel); }
     div.onclick = () => onBenchSlotClick(slotId);
@@ -578,6 +660,66 @@ function renderBench() {
   });
 }
 
+// --- TOTW LOGIC ---
+function renderTotw() {
+  ['T_TOP', 'T_DEF', 'T_MID', 'T_ATT'].forEach(slotId => {
+    const el = document.getElementById(slotId);
+    const badge = el.querySelector('.totw-badge');
+    
+    // Clear badge contents but leave the crown 
+    badge.innerHTML = "";
+    el.classList.remove('filled');
+    
+    // Remove old name block if any
+    const oldName = el.querySelector('.totw-name');
+    if (oldName) oldName.remove();
+    
+    const playerId = totwAssignments[slotId];
+    const player = playerId ? players.find(p => p.id === playerId) : null;
+    
+    if (player) {
+      el.classList.add('filled');
+      if (player.avatar) {
+        const img = document.createElement("img"); img.src = player.avatar; badge.appendChild(img);
+      } else {
+        badge.textContent = initials(player.name); 
+        badge.style.color = "#fff"; badge.style.fontWeight = "700"; 
+        badge.style.fontSize = slotId === 'T_TOP' ? "44px" : "32px"; 
+      }
+      
+      const removeX = document.createElement("div"); removeX.className = "totw-remove-x"; removeX.textContent = "×";
+      removeX.onclick = (e) => { e.stopPropagation(); totwAssignments[slotId] = null; saveTotw(); renderTotw(); renderRoster(); };
+      badge.appendChild(removeX);
+      
+      const nameLabel = document.createElement("div"); nameLabel.className = "totw-name"; nameLabel.textContent = player.name; 
+      el.appendChild(nameLabel);
+    } else {
+      const icon = document.createElement("div"); icon.className = "totw-empty-icon"; icon.textContent = "+"; badge.appendChild(icon);
+    }
+    
+    el.onclick = () => onTotwSlotClick(slotId);
+  });
+}
+
+function onTotwSlotClick(slotId) {
+  if (selectedPlayerId) {
+    // Remove if they exist elsewhere in TOTW
+    Object.keys(totwAssignments).forEach(sid => { if (totwAssignments[sid] === selectedPlayerId) totwAssignments[sid] = null; });
+    totwAssignments[slotId] = selectedPlayerId; 
+    selectedPlayerId = null;
+    saveTotw();
+    renderTotw(); 
+    renderRoster();
+  } else if (totwAssignments[slotId]) {
+    selectedPlayerId = totwAssignments[slotId]; 
+    totwAssignments[slotId] = null;
+    saveTotw();
+    renderTotw(); 
+    renderRoster();
+  }
+}
+
+// --- CLICK ASSIGNMENTS ---
 function onBenchSlotClick(slotId) {
   if (selectedPlayerId) {
     Object.keys(assignments).forEach(sid => { if (assignments[sid] === selectedPlayerId) { delete assignments[sid]; delete roles[sid]; }});
@@ -589,8 +731,6 @@ function onBenchSlotClick(slotId) {
     renderPitch(); renderBench(); renderRoster();
   }
 }
-
-function initials(name) { return name.trim().split(/\s+/).map(w => w[0]).join("").slice(0,2).toUpperCase(); }
 
 function onSlotClick(slotId) {
   if (selectedPlayerId) {
@@ -604,6 +744,8 @@ function onSlotClick(slotId) {
   }
 }
 
+function initials(name) { return name.trim().split(/\s+/).map(w => w[0]).join("").slice(0,2).toUpperCase(); }
+
 function renderRoster() {
   const list = document.getElementById("rosterList");
   const query = document.getElementById("rosterSearch").value.trim().toLowerCase();
@@ -611,13 +753,21 @@ function renderRoster() {
 
   const placedIds = new Set([...Object.values(assignments), ...Object.values(benchAssignments).filter(Boolean)]);
   const benchIds = new Set(Object.values(benchAssignments).filter(Boolean));
+  const activeTotwIds = new Set(Object.values(totwAssignments).filter(Boolean));
 
   [...players].sort((a, b) => { if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1; return a.name.localeCompare(b.name); })
     .filter(p => p.name.toLowerCase().includes(query))
     .forEach(p => {
       const item = document.createElement("div"); item.className = "roster-item";
       if (p.id === selectedPlayerId) item.classList.add("selected");
-      if (placedIds.has(p.id)) item.classList.add("placed");
+      
+      let statusText = p.mainTeam ? "Main Team" : "Squad";
+      if (currentTab === 'totw') {
+        if (activeTotwIds.has(p.id)) { statusText = "Player of the Week"; item.classList.add("placed"); }
+      } else {
+        if (benchIds.has(p.id)) { statusText = "On bench"; item.classList.add("placed"); }
+        else if (placedIds.has(p.id)) { statusText = "On pitch"; item.classList.add("placed"); }
+      }
       
       const img = document.createElement("img"); img.className = "roster-avatar";
       if (p.avatar) img.src = p.avatar;
@@ -626,13 +776,16 @@ function renderRoster() {
       const nameRow = document.createElement("div"); nameRow.className = "roster-name-row";
       const nameEl = document.createElement("div"); nameEl.className = "roster-name" + (p.mainTeam ? " main-team" : ""); nameEl.textContent = p.name;
       nameRow.appendChild(nameEl);
-      const tagEl = document.createElement("div"); tagEl.className = "roster-tag";
-      tagEl.textContent = benchIds.has(p.id) ? "On bench" : (placedIds.has(p.id) ? "On pitch" : (p.mainTeam ? "Main Team" : "Squad"));
+      const tagEl = document.createElement("div"); tagEl.className = "roster-tag"; tagEl.textContent = statusText;
       
       info.appendChild(nameRow); info.appendChild(tagEl);
       item.appendChild(img); item.appendChild(info);
 
-      item.onclick = () => { selectedPlayerId = (selectedPlayerId === p.id) ? null : p.id; renderRoster(); renderPitch(); };
+      item.onclick = () => { 
+        selectedPlayerId = (selectedPlayerId === p.id) ? null : p.id; 
+        renderRoster(); 
+        if (currentTab === 'totw') renderTotw(); else { renderPitch(); renderBench(); }
+      };
       list.appendChild(item);
     });
 }
@@ -646,205 +799,125 @@ document.getElementById("rosterSearch").oninput = renderRoster;
 // --- DRAWING MODE LOGIC ---
 const drawingCanvas = document.getElementById('drawingCanvas');
 const ctx = drawingCanvas.getContext('2d');
-let isDrawingMode = false;
-let isDrawing = false;
-let drawHistory = []; // Stores states for Undo functionality
+let isDrawingMode = false; let isDrawing = false; let drawHistory = []; 
 
-ctx.strokeStyle = '#ffff00'; // Tactical yellow marker
-ctx.lineWidth = 6;
-ctx.lineCap = 'round';
-ctx.lineJoin = 'round';
+ctx.strokeStyle = '#ffff00'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
 document.getElementById('drawToggleBtn').onclick = (e) => {
   isDrawingMode = !isDrawingMode;
   e.target.textContent = isDrawingMode ? "🖍 Draw: ON" : "🖍 Draw: OFF";
   e.target.style.color = isDrawingMode ? "var(--main-team)" : "";
   e.target.style.borderColor = isDrawingMode ? "var(--main-team)" : "";
-  if (isDrawingMode) drawingCanvas.classList.add('active');
-  else drawingCanvas.classList.remove('active');
+  if (isDrawingMode) drawingCanvas.classList.add('active'); else drawingCanvas.classList.remove('active');
 };
 
-document.getElementById('clearDrawBtn').onclick = () => {
-  ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-  drawHistory = []; // Reset history when clearing
-};
+document.getElementById('clearDrawBtn').onclick = () => { ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); drawHistory = []; };
 
-// Accurately map pointer coordinates back to the strict 720x750 export resolution
 function getDrawPos(e) {
   const rect = drawingCanvas.getBoundingClientRect();
   const scaleX = drawingCanvas.width / rect.width;
   const scaleY = drawingCanvas.height / rect.height;
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: (clientX - rect.left) * scaleX,
-    y: (clientY - rect.top) * scaleY
-  };
+  return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
 }
 
 function startDrawing(e) {
   if (!isDrawingMode) return;
   e.preventDefault();
-  
-  // Save current canvas state to history BEFORE starting a new line
   drawHistory.push(ctx.getImageData(0, 0, drawingCanvas.width, drawingCanvas.height));
-  if (drawHistory.length > 30) drawHistory.shift(); // Prevent memory buildup, limit to 30 undos
-
+  if (drawHistory.length > 30) drawHistory.shift(); 
   isDrawing = true;
   const pos = getDrawPos(e);
-  ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
+  ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
 }
 
 function drawPointer(e) {
   if (!isDrawing || !isDrawingMode) return;
   e.preventDefault();
   const pos = getDrawPos(e);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
+  ctx.lineTo(pos.x, pos.y); ctx.stroke();
 }
 
-function stopDrawing() {
-  isDrawing = false;
-}
+function stopDrawing() { isDrawing = false; }
 
-// Global Keyboard Listener for Undo (Ctrl+Z or Cmd+Z)
 window.addEventListener('keydown', (e) => {
   if (isDrawingMode && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
     e.preventDefault(); 
-    if (drawHistory.length > 0) {
-      const lastState = drawHistory.pop();
-      ctx.putImageData(lastState, 0, 0);
-    } else {
-      ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-    }
+    if (drawHistory.length > 0) { const lastState = drawHistory.pop(); ctx.putImageData(lastState, 0, 0); } 
+    else { ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); }
   }
 });
 
-drawingCanvas.addEventListener('mousedown', startDrawing);
-drawingCanvas.addEventListener('mousemove', drawPointer);
-window.addEventListener('mouseup', stopDrawing);
+drawingCanvas.addEventListener('mousedown', startDrawing); drawingCanvas.addEventListener('mousemove', drawPointer); window.addEventListener('mouseup', stopDrawing);
+drawingCanvas.addEventListener('touchstart', startDrawing, {passive: false}); drawingCanvas.addEventListener('touchmove', drawPointer, {passive: false}); window.addEventListener('touchend', stopDrawing);
 
-drawingCanvas.addEventListener('touchstart', startDrawing, {passive: false});
-drawingCanvas.addEventListener('touchmove', drawPointer, {passive: false});
-window.addEventListener('touchend', stopDrawing);
-
-
-// Persist the webhook URL locally so it doesn't need to be re-pasted on every visit
 document.getElementById("webhookUrl").addEventListener("input", (e) => {
-  try { localStorage.setItem("lineupPlanner_webhookUrl", e.target.value.trim()); }
-  catch (err) { console.warn("Could not save webhook to localStorage:", err); }
+  try { localStorage.setItem("lineupPlanner_webhookUrl", e.target.value.trim()); } catch (err) {}
 });
 
-// EXPORT FUNCTION: Forces fixed dimensions for bug-free html2canvas capture
+// EXPORT FUNCTION
 async function generateCanvas() {
   const captureElement = document.getElementById("captureArea");
   captureElement.classList.add('export-mode');
-  await new Promise(r => setTimeout(r, 150));
-  window.scrollTo(0, 0);
-  await new Promise(r => setTimeout(r, 50));
+  await new Promise(r => setTimeout(r, 150)); window.scrollTo(0, 0); await new Promise(r => setTimeout(r, 50));
   const rect = captureElement.getBoundingClientRect();
   const canvas = await html2canvas(captureElement, {
-    useCORS: true,
-    backgroundColor: "#121614",
-    scale: 2,
-    x: rect.left,
-    y: rect.top,
-    width: rect.width,
-    height: rect.height,
-    windowWidth: document.documentElement.scrollWidth,
-    windowHeight: document.documentElement.scrollHeight
+    useCORS: true, backgroundColor: "#121614", scale: 2, x: rect.left, y: rect.top, width: rect.width, height: rect.height,
+    windowWidth: document.documentElement.scrollWidth, windowHeight: document.documentElement.scrollHeight
   });
   captureElement.classList.remove('export-mode');
   return canvas;
 }
 
 document.getElementById("downloadBtn").onclick = async () => {
-  const btn = document.getElementById("downloadBtn");
-  btn.textContent = "⏳ Saving...";
+  const btn = document.getElementById("downloadBtn"); btn.textContent = "⏳ Saving...";
   const canvas = await generateCanvas();
   const teamName = document.getElementById("logoSelect").selectedOptions[0].textContent.trim().replace(/\s+/g, "-").toLowerCase();
-  const link = document.createElement("a");
-  link.download = teamName + "-lineup.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+  const link = document.createElement("a"); link.download = teamName + "-lineup.png"; link.href = canvas.toDataURL("image/png"); link.click();
   btn.textContent = "📸 Save Image";
 };
 
-function absoluteUrl(path) {
-  try { return new URL(path, window.location.href).href; } catch(e) { return path; }
-}
-
+function absoluteUrl(path) { try { return new URL(path, window.location.href).href; } catch(e) { return path; } }
 const CORS_RELAY = "https://corsproxy.io/?url=";
 
 async function postToDiscord(webhookUrl, formData) {
-  try {
-    const direct = await fetch(webhookUrl, { method: 'POST', body: formData });
-    return direct;
-  } catch (directErr) {
-    const relayed = await fetch(CORS_RELAY + encodeURIComponent(webhookUrl), { method: 'POST', body: formData });
-    return relayed;
-  }
+  try { return await fetch(webhookUrl, { method: 'POST', body: formData }); } 
+  catch (directErr) { return await fetch(CORS_RELAY + encodeURIComponent(webhookUrl), { method: 'POST', body: formData }); }
 }
 
 document.getElementById("discordBtn").onclick = async () => {
   const webhookUrl = document.getElementById("webhookUrl").value.trim();
   if(!webhookUrl) { alert("Please paste a Discord Webhook URL in the top right box first!"); return; }
-  
-  const btn = document.getElementById("discordBtn");
-  const ogText = btn.innerHTML;
-  btn.innerHTML = "⏳ Sending...";
-  btn.disabled = true;
-
+  const btn = document.getElementById("discordBtn"); const ogText = btn.innerHTML; btn.innerHTML = "⏳ Sending..."; btn.disabled = true;
   try {
     const canvas = await generateCanvas();
     canvas.toBlob(async (blob) => {
       try {
         const teamName = document.getElementById("logoSelect").selectedOptions[0].textContent.trim();
         const logoUrl = absoluteUrl(document.getElementById("pitchLogo").src);
-
-        const formData = new FormData();
-        formData.append('file', blob, 'lineup.png');
-        formData.append('payload_json', JSON.stringify({
-          username: teamName + " | Lineup",
-          avatar_url: logoUrl
-        }));
-
+        const formData = new FormData(); formData.append('file', blob, 'lineup.png'); formData.append('payload_json', JSON.stringify({ username: teamName + " | Lineup", avatar_url: logoUrl }));
         const res = await postToDiscord(webhookUrl, formData);
-
-        if (res.ok) alert("✅ Successfully sent to Discord!");
-        else alert("❌ Discord rejected the request (status " + res.status + "). Double check your webhook URL is correct and still active.");
-
-      } catch (sendErr) {
-        console.error(sendErr);
-        alert("❌ Couldn't reach Discord — the CORS relay may be down or rate-limited right now. Try again in a moment, or set up your own relay (see comment near CORS_RELAY in the code).");
-      }
-
-      btn.innerHTML = ogText;
-      btn.disabled = false;
+        if (res.ok) alert("✅ Successfully sent to Discord!"); else alert("❌ Discord rejected the request.");
+      } catch (sendErr) { alert("❌ Couldn't reach Discord. Check relay settings."); }
+      btn.innerHTML = ogText; btn.disabled = false;
     });
-  } catch(e) {
-    console.error(e);
-    alert("Error taking screenshot");
-    btn.innerHTML = ogText;
-    btn.disabled = false;
-  }
+  } catch(e) { alert("Error taking screenshot"); btn.innerHTML = ogText; btn.disabled = false; }
 };
-
 
 async function init() {
   try {
     const res = await fetch('players.json');
     const data = await res.json();
     players = data.map((p, i) => ({ id: "p" + i, ...p }));
-  } catch (error) { console.error("Could not load players.json"); }
+  } catch (error) { console.warn("Could not load players.json, rendering empty state."); }
 
   try {
     const savedWebhook = localStorage.getItem("lineupPlanner_webhookUrl");
     if (savedWebhook) document.getElementById("webhookUrl").value = savedWebhook;
-  } catch (e) { console.warn("Could not read saved webhook from localStorage:", e); }
+  } catch (e) {}
 
-  renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench(); renderRoster();
+  renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench(); renderTotw(); renderRoster();
 }
 init();
 </script>
