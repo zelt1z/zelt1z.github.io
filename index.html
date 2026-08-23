@@ -624,7 +624,6 @@ function renderRoster() {
       
       const info = document.createElement("div"); info.className = "roster-info";
       const nameRow = document.createElement("div"); nameRow.className = "roster-name-row";
-      //if (p.mainTeam) { const star = document.createElement("span"); star.className = "roster-star"; star.textContent = "★"; nameRow.appendChild(star); }
       const nameEl = document.createElement("div"); nameEl.className = "roster-name" + (p.mainTeam ? " main-team" : ""); nameEl.textContent = p.name;
       nameRow.appendChild(nameEl);
       const tagEl = document.createElement("div"); tagEl.className = "roster-tag";
@@ -638,7 +637,6 @@ function renderRoster() {
     });
 }
 
-
 document.getElementById("logoSelect").onchange = (e) => { document.getElementById("pitchLogo").src = e.target.value; };
 document.getElementById("playerCount").onchange = (e) => { playerCount = Number(e.target.value); formationKey = FORMATIONS[playerCount][0].key; assignments = {}; roles = {}; renderFormationOptions(); renderPitch(); renderBench(); renderRoster(); };
 document.getElementById("formationSelect").onchange = (e) => { formationKey = e.target.value; assignments = {}; roles = {}; renderPitch(); renderBench(); renderRoster(); };
@@ -650,6 +648,7 @@ const drawingCanvas = document.getElementById('drawingCanvas');
 const ctx = drawingCanvas.getContext('2d');
 let isDrawingMode = false;
 let isDrawing = false;
+let drawHistory = []; // Stores states for Undo functionality
 
 ctx.strokeStyle = '#ffff00'; // Tactical yellow marker
 ctx.lineWidth = 6;
@@ -667,6 +666,7 @@ document.getElementById('drawToggleBtn').onclick = (e) => {
 
 document.getElementById('clearDrawBtn').onclick = () => {
   ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+  drawHistory = []; // Reset history when clearing
 };
 
 // Accurately map pointer coordinates back to the strict 720x750 export resolution
@@ -685,6 +685,11 @@ function getDrawPos(e) {
 function startDrawing(e) {
   if (!isDrawingMode) return;
   e.preventDefault();
+  
+  // Save current canvas state to history BEFORE starting a new line
+  drawHistory.push(ctx.getImageData(0, 0, drawingCanvas.width, drawingCanvas.height));
+  if (drawHistory.length > 30) drawHistory.shift(); // Prevent memory buildup, limit to 30 undos
+
   isDrawing = true;
   const pos = getDrawPos(e);
   ctx.beginPath();
@@ -702,6 +707,19 @@ function drawPointer(e) {
 function stopDrawing() {
   isDrawing = false;
 }
+
+// Global Keyboard Listener for Undo (Ctrl+Z or Cmd+Z)
+window.addEventListener('keydown', (e) => {
+  if (isDrawingMode && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    e.preventDefault(); 
+    if (drawHistory.length > 0) {
+      const lastState = drawHistory.pop();
+      ctx.putImageData(lastState, 0, 0);
+    } else {
+      ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+    }
+  }
+});
 
 drawingCanvas.addEventListener('mousedown', startDrawing);
 drawingCanvas.addEventListener('mousemove', drawPointer);
@@ -721,20 +739,11 @@ document.getElementById("webhookUrl").addEventListener("input", (e) => {
 // EXPORT FUNCTION: Forces fixed dimensions for bug-free html2canvas capture
 async function generateCanvas() {
   const captureElement = document.getElementById("captureArea");
-
-  // Snap into strict export sizing
   captureElement.classList.add('export-mode');
-
-  // A brief timeout allows the browser to re-paint the DOM fully before canvas reads it
   await new Promise(r => setTimeout(r, 150));
-
-  // Scroll to the very top-left so the fixed export box (top:0; left:0) lines up with (0,0)
-  // in the viewport — otherwise html2canvas can capture the wrong region if the page was scrolled.
   window.scrollTo(0, 0);
   await new Promise(r => setTimeout(r, 50));
-
   const rect = captureElement.getBoundingClientRect();
-
   const canvas = await html2canvas(captureElement, {
     useCORS: true,
     backgroundColor: "#121614",
@@ -746,10 +755,7 @@ async function generateCanvas() {
     windowWidth: document.documentElement.scrollWidth,
     windowHeight: document.documentElement.scrollHeight
   });
-
-  // Return to normal responsive UI
   captureElement.classList.remove('export-mode');
-
   return canvas;
 }
 
@@ -765,26 +771,17 @@ document.getElementById("downloadBtn").onclick = async () => {
   btn.textContent = "📸 Save Image";
 };
 
-// Absolute URL helper so the logo works as the webhook avatar_url (Discord needs a full URL, not a relative path)
 function absoluteUrl(path) {
   try { return new URL(path, window.location.href).href; } catch(e) { return path; }
 }
 
-// Discord webhooks do NOT send CORS headers, so a browser-hosted page (like GitHub Pages)
-// can NEVER call discord.com/api/webhooks/... directly with fetch() — this is blocked by the
-// browser itself, not something a request tweak can fix. We route the POST through a CORS relay
-// instead. corsproxy.io is used as a sane default; swap RELAY_URL for your own relay if you have one
-// (e.g. a tiny Cloudflare Worker) for reliability you control.
 const CORS_RELAY = "https://corsproxy.io/?url=";
 
 async function postToDiscord(webhookUrl, formData) {
-  // Try a direct request first (works if this page is ever opened from discord.com itself,
-  // or if Discord changes their CORS policy in the future).
   try {
     const direct = await fetch(webhookUrl, { method: 'POST', body: formData });
     return direct;
   } catch (directErr) {
-    // Expected to fail with a CORS error in virtually all browser contexts — fall back to the relay.
     const relayed = await fetch(CORS_RELAY + encodeURIComponent(webhookUrl), { method: 'POST', body: formData });
     return relayed;
   }
@@ -842,7 +839,6 @@ async function init() {
     players = data.map((p, i) => ({ id: "p" + i, ...p }));
   } catch (error) { console.error("Could not load players.json"); }
 
-  // Restore a previously saved Discord webhook URL, so it doesn't need to be re-pasted every visit
   try {
     const savedWebhook = localStorage.getItem("lineupPlanner_webhookUrl");
     if (savedWebhook) document.getElementById("webhookUrl").value = savedWebhook;
