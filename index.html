@@ -907,17 +907,42 @@ document.getElementById("discordBtn").onclick = async () => {
 
 async function init() {
   try {
+    // 1. Fetch your players.json file
     const res = await fetch('players.json');
     const data = await res.json();
-    players = data.map((p, i) => ({ id: "p" + i, ...p }));
-  } catch (error) { console.warn("Could not load players.json, rendering empty state."); }
+    
+    // 2. Set up the players array, temporarily leaving avatar blank
+    players = data.map((p, i) => ({ id: "p" + i, ...p, avatar: "" }));
 
+    // 3. Extract all userIds and join them with commas
+    const userIds = players.map(p => p.userId).filter(Boolean).join(',');
+
+    // 4. Fetch ALL avatars at the same time using RoProxy
+    if (userIds) {
+      const apiUrl = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userIds}&size=150x150&format=Png&isCircular=false`;
+      const thumbRes = await fetch(apiUrl);
+      const thumbData = await thumbRes.json();
+
+      // 5. Match the returned images back to your players
+      thumbData.data.forEach(thumb => {
+        const player = players.find(p => p.userId === thumb.targetId);
+        if (player) {
+          player.avatar = thumb.imageUrl; // This injects the live link!
+        }
+      });
+    }
+  } catch (error) { 
+    console.error("Could not load players.json or avatars", error); 
+  }
+
+  // Restore a previously saved Discord webhook URL
   try {
     const savedWebhook = localStorage.getItem("lineupPlanner_webhookUrl");
     if (savedWebhook) document.getElementById("webhookUrl").value = savedWebhook;
-  } catch (e) {}
+  } catch (e) { console.warn("Could not read saved webhook:", e); }
 
-  renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench(); renderTotw(); renderRoster();
+  // Render everything with the newly loaded live avatars
+  renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench(); renderRoster();
 }
 init();
 </script>
