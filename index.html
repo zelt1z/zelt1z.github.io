@@ -71,6 +71,7 @@
 
   button.ghost, button.action-btn { border: 1px solid var(--panel-border); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
   button.ghost:hover { background: #252e29; border-color: #3d4a42; }
+  button.ghost.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   button.action-btn.discord { background: #5865F2; border-color: #5865F2; color: #fff; display: flex; align-items: center; gap: 6px; }
   button.action-btn.discord:hover { background: #4752C4; }
@@ -176,7 +177,7 @@
   .manager-sig { position: absolute; bottom: 12px; right: 16px; font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.6); z-index: 3; pointer-events: none; text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* Player Slots on Pitch */
-  .slot { position: absolute; transform: translate(-50%, -50%); width: 100px; display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; z-index: 4; }
+  .slot { position: absolute; transform: translate(-50%, -50%); width: 100px; display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; z-index: 4; touch-action: none; }
   .slot-badge { width: 72px; height: 72px; border-radius: 50%; background: var(--slot-empty); border: 2px dashed var(--slot-empty-border); display: flex; align-items: center; justify-content: center; position: relative; }
   .slot.filled .slot-badge { border-style: solid; background: #10230f; }
   .slot.filled .slot-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%;}
@@ -251,13 +252,20 @@
   .roster-header { padding: 16px 16px 10px; border-bottom: 1px solid var(--panel-border); flex-shrink: 0;}
   .roster-header h2 { margin: 0 0 8px; font-size: 15px; }
 
-  .roster-search { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-size: 13px; background: var(--paper); color: var(--ink); }
+  .roster-filter-row { display: flex; gap: 6px; margin-top: 6px; }
+  .roster-search { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); font-size: 13px; background: var(--paper); color: var(--ink); }
+  .roster-pos-select { background: var(--paper); color: var(--ink); border: 1px solid var(--panel-border); border-radius: 8px; font-size: 11px; font-weight: 700; padding: 0 8px; cursor: pointer; outline: none; text-transform: uppercase; }
+
   .roster-list { overflow-y: auto; padding: 8px; flex: 1; }
   .roster-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; }
   .roster-item:hover { background: #232c26; }
   .roster-item.selected { background: #1e3625; border-color: var(--accent); }
   .roster-item.placed { opacity: 0.45; }
+  
+  .roster-avatar-col { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
   .roster-avatar { width: 38px; height: 38px; border-radius: 50%; background: #2c3630; object-fit: cover; border: 1px solid #3d4a42; }
+  .roster-pos-badge { font-size: 8.5px; font-weight: 800; text-transform: uppercase; color: var(--main-team); background: rgba(108, 212, 242, 0.12); border: 1px solid rgba(108, 212, 242, 0.3); padding: 1px 4px; border-radius: 4px; line-height: 1; letter-spacing: 0.5px; }
+  
   .roster-info { min-width: 0; flex: 1; }
   .roster-name-row { display: flex; align-items: center; gap: 4px; }
   .roster-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -331,6 +339,7 @@
         <label>Formation</label>
         <select id="formationSelect"></select>
       </div>
+      <button class="ghost" id="freeModeBtn">🔓 Free Mode: OFF</button>
       <button class="ghost" id="clearBtn">Clear pitch</button>
       <button class="ghost" id="drawToggleBtn">🖍 Draw: OFF</button>
       <button class="ghost" id="clearDrawBtn">🗑 Clear Ink</button>
@@ -454,7 +463,16 @@
   <aside class="roster-panel">
     <div class="roster-header">
       <h2>Roster</h2>
-      <input type="text" class="roster-search" id="rosterSearch" placeholder="Search players...">
+      <div class="roster-filter-row">
+        <input type="text" class="roster-search" id="rosterSearch" placeholder="Search players...">
+        <select id="rosterPosFilter" class="roster-pos-select">
+          <option value="all">All</option>
+          <option value="gk">GK</option>
+          <option value="def">DEF</option>
+          <option value="mid">MID</option>
+          <option value="att">ATT</option>
+        </select>
+      </div>
     </div>
     <div class="roster-list" id="rosterList"></div>
     <div class="hint-bar">
@@ -480,10 +498,14 @@ let playerCount = 7;
 let formationKey = FORMATIONS[7][0].key;
 let assignments = {};       
 let benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null };
-let totwAssignments = { T_TOP: null, T_DEF: null, T_MID: null, T_ATT: null }; // New TOTW state
+let totwAssignments = { T_TOP: null, T_DEF: null, T_MID: null, T_ATT: null }; 
 let roles = {}; 
 let selectedPlayerId = null;
 let currentTab = 'lineup';
+
+// Free Mode State
+let freeMode = false;
+let customPositions = {};
 
 // Load TOTW from localStorage
 try {
@@ -517,7 +539,6 @@ document.getElementById('tabTotw').onclick = () => {
   document.getElementById('lineupControls2').style.display = 'none';
   renderRoster();
 };
-
 
 // Match details bindings
 const ids = ['matchNameIn', 'matchTypeIn', 'matchTimeIn'];
@@ -589,9 +610,17 @@ function renderPitch() {
   });
 
   slots.forEach(slot => {
-    const coord = coords[slot.id];
     const div = document.createElement("div"); div.className = "slot";
-    div.style.left = (coord.x / 300 * 100) + "%"; div.style.top = (coord.y / 400 * 100) + "%";
+    
+    // Position rendering (Free mode vs Fixed mode)
+    if (freeMode && customPositions[slot.id]) {
+      div.style.left = customPositions[slot.id].xPerc + "%";
+      div.style.top = customPositions[slot.id].yPerc + "%";
+    } else {
+      const coord = coords[slot.id];
+      div.style.left = (coord.x / 300 * 100) + "%";
+      div.style.top = (coord.y / 400 * 100) + "%";
+    }
 
     const playerId = assignments[slot.id];
     const player = playerId ? players.find(p => p.id === playerId) : null;
@@ -618,7 +647,53 @@ function renderPitch() {
     const posLabel = document.createElement("div"); posLabel.className = "slot-pos"; posLabel.textContent = slot.label; div.appendChild(posLabel);
     if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : ""); nameLabel.textContent = player.name; div.appendChild(nameLabel); }
 
-    div.onclick = () => onSlotClick(slot.id);
+    // Click/Drag Interaction Logic
+    if (freeMode) {
+      div.style.cursor = "grab";
+      let isDragging = false;
+      let startX, startY;
+
+      div.onpointerdown = (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        isDragging = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        div.setPointerCapture(e.pointerId);
+
+        div.onpointermove = (ev) => {
+          const dx = ev.clientX - startX;
+          const dy = ev.clientY - startY;
+          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+            isDragging = true;
+            div.style.cursor = "grabbing";
+          }
+          if (isDragging) {
+            const pitchRect = document.getElementById("pitchWrap").getBoundingClientRect();
+            let posX = ((ev.clientX - pitchRect.left) / pitchRect.width) * 100;
+            let posY = ((ev.clientY - pitchRect.top) / pitchRect.height) * 100;
+            posX = Math.max(4, Math.min(96, posX));
+            posY = Math.max(4, Math.min(96, posY));
+
+            customPositions[slot.id] = { xPerc: posX, yPerc: posY };
+            div.style.left = posX + "%";
+            div.style.top = posY + "%";
+          }
+        };
+
+        div.onpointerup = (ev) => {
+          try { div.releasePointerCapture(ev.pointerId); } catch(err) {}
+          div.onpointermove = null;
+          div.onpointerup = null;
+          div.style.cursor = "grab";
+          if (!isDragging) {
+            onSlotClick(slot.id);
+          }
+        };
+      };
+    } else {
+      div.onclick = () => onSlotClick(slot.id);
+    }
+
     div.oncontextmenu = (e) => {
       e.preventDefault(); e.stopPropagation();
       if (!player) return; 
@@ -666,11 +741,9 @@ function renderTotw() {
     const el = document.getElementById(slotId);
     const badge = el.querySelector('.totw-badge');
     
-    // Clear badge contents but leave the crown 
     badge.innerHTML = "";
     el.classList.remove('filled');
     
-    // Remove old name block if any
     const oldName = el.querySelector('.totw-name');
     if (oldName) oldName.remove();
     
@@ -703,7 +776,6 @@ function renderTotw() {
 
 function onTotwSlotClick(slotId) {
   if (selectedPlayerId) {
-    // Remove if they exist elsewhere in TOTW
     Object.keys(totwAssignments).forEach(sid => { if (totwAssignments[sid] === selectedPlayerId) totwAssignments[sid] = null; });
     totwAssignments[slotId] = selectedPlayerId; 
     selectedPlayerId = null;
@@ -749,6 +821,7 @@ function initials(name) { return name.trim().split(/\s+/).map(w => w[0]).join(""
 function renderRoster() {
   const list = document.getElementById("rosterList");
   const query = document.getElementById("rosterSearch").value.trim().toLowerCase();
+  const posFilter = document.getElementById("rosterPosFilter").value.toLowerCase();
   list.innerHTML = "";
 
   const placedIds = new Set([...Object.values(assignments), ...Object.values(benchAssignments).filter(Boolean)]);
@@ -756,7 +829,12 @@ function renderRoster() {
   const activeTotwIds = new Set(Object.values(totwAssignments).filter(Boolean));
 
   [...players].sort((a, b) => { if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1; return a.name.localeCompare(b.name); })
-    .filter(p => p.name.toLowerCase().includes(query))
+    .filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(query);
+      const playerPos = (p.position || "").toLowerCase();
+      const matchesPos = (posFilter === "all") || (playerPos === posFilter);
+      return matchesSearch && matchesPos;
+    })
     .forEach(p => {
       const item = document.createElement("div"); item.className = "roster-item";
       if (p.id === selectedPlayerId) item.classList.add("selected");
@@ -769,8 +847,18 @@ function renderRoster() {
         else if (placedIds.has(p.id)) { statusText = "On pitch"; item.classList.add("placed"); }
       }
       
+      const avatarCol = document.createElement("div"); avatarCol.className = "roster-avatar-col";
       const img = document.createElement("img"); img.className = "roster-avatar";
       if (p.avatar) img.src = p.avatar;
+      avatarCol.appendChild(img);
+
+      // Display player position badge in roster list only
+      if (p.position) {
+        const posBadge = document.createElement("span");
+        posBadge.className = "roster-pos-badge";
+        posBadge.textContent = p.position.toUpperCase();
+        avatarCol.appendChild(posBadge);
+      }
       
       const info = document.createElement("div"); info.className = "roster-info";
       const nameRow = document.createElement("div"); nameRow.className = "roster-name-row";
@@ -779,7 +867,7 @@ function renderRoster() {
       const tagEl = document.createElement("div"); tagEl.className = "roster-tag"; tagEl.textContent = statusText;
       
       info.appendChild(nameRow); info.appendChild(tagEl);
-      item.appendChild(img); item.appendChild(info);
+      item.appendChild(avatarCol); item.appendChild(info);
 
       item.onclick = () => { 
         selectedPlayerId = (selectedPlayerId === p.id) ? null : p.id; 
@@ -790,11 +878,49 @@ function renderRoster() {
     });
 }
 
+// Control Event Listeners
 document.getElementById("logoSelect").onchange = (e) => { document.getElementById("pitchLogo").src = e.target.value; };
-document.getElementById("playerCount").onchange = (e) => { playerCount = Number(e.target.value); formationKey = FORMATIONS[playerCount][0].key; assignments = {}; roles = {}; renderFormationOptions(); renderPitch(); renderBench(); renderRoster(); };
-document.getElementById("formationSelect").onchange = (e) => { formationKey = e.target.value; assignments = {}; roles = {}; renderPitch(); renderBench(); renderRoster(); };
-document.getElementById("clearBtn").onclick = () => { assignments = {}; roles = {}; benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null }; selectedPlayerId = null; renderPitch(); renderBench(); renderRoster(); };
+document.getElementById("playerCount").onchange = (e) => { 
+  playerCount = Number(e.target.value); 
+  formationKey = FORMATIONS[playerCount][0].key; 
+  assignments = {}; roles = {}; customPositions = {};
+  renderFormationOptions(); renderPitch(); renderBench(); renderRoster(); 
+};
+document.getElementById("formationSelect").onchange = (e) => { 
+  formationKey = e.target.value; 
+  assignments = {}; roles = {}; customPositions = {};
+  renderPitch(); renderBench(); renderRoster(); 
+};
+document.getElementById("clearBtn").onclick = () => { 
+  assignments = {}; roles = {}; customPositions = {};
+  benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null }; 
+  selectedPlayerId = null; 
+  renderPitch(); renderBench(); renderRoster(); 
+};
 document.getElementById("rosterSearch").oninput = renderRoster;
+document.getElementById("rosterPosFilter").onchange = renderRoster;
+
+// Free Mode Button Handler
+const freeModeBtn = document.getElementById("freeModeBtn");
+freeModeBtn.onclick = () => {
+  freeMode = !freeMode;
+  freeModeBtn.textContent = freeMode ? "🔓 Free Mode: ON" : "🔓 Free Mode: OFF";
+  if (freeMode) {
+    freeModeBtn.classList.add("active");
+    const formation = currentFormation();
+    const coords = computeCoords(formation.rows);
+    const slots = buildSlots(formation.rows);
+    slots.forEach(s => {
+      if (!customPositions[s.id]) {
+        const c = coords[s.id];
+        customPositions[s.id] = { xPerc: (c.x / 300) * 100, yPerc: (c.y / 400) * 100 };
+      }
+    });
+  } else {
+    freeModeBtn.classList.remove("active");
+  }
+  renderPitch();
+};
 
 // --- DRAWING MODE LOGIC ---
 const drawingCanvas = document.getElementById('drawingCanvas');
@@ -907,27 +1033,22 @@ document.getElementById("discordBtn").onclick = async () => {
 
 async function init() {
   try {
-    // 1. Fetch your players.json file
     const res = await fetch('players.json');
     const data = await res.json();
     
-    // 2. Set up the players array, temporarily leaving avatar blank
     players = data.map((p, i) => ({ id: "p" + i, ...p, avatar: "" }));
 
-    // 3. Extract all userIds and join them with commas
     const userIds = players.map(p => p.userId).filter(Boolean).join(',');
 
-    // 4. Fetch ALL avatars at the same time using RoProxy
     if (userIds) {
       const apiUrl = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userIds}&size=150x150&format=Png&isCircular=false`;
       const thumbRes = await fetch(apiUrl);
       const thumbData = await thumbRes.json();
 
-      // 5. Match the returned images back to your players
       thumbData.data.forEach(thumb => {
         const player = players.find(p => p.userId === thumb.targetId);
         if (player) {
-          player.avatar = thumb.imageUrl; // This injects the live link!
+          player.avatar = thumb.imageUrl;
         }
       });
     }
@@ -935,13 +1056,11 @@ async function init() {
     console.error("Could not load players.json or avatars", error); 
   }
 
-  // Restore a previously saved Discord webhook URL
   try {
     const savedWebhook = localStorage.getItem("lineupPlanner_webhookUrl");
     if (savedWebhook) document.getElementById("webhookUrl").value = savedWebhook;
   } catch (e) { console.warn("Could not read saved webhook:", e); }
 
-  // Render everything with the newly loaded live avatars
   renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench(); renderRoster();
 }
 init();
