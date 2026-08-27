@@ -828,7 +828,21 @@ function renderRoster() {
   const benchIds = new Set(Object.values(benchAssignments).filter(Boolean));
   const activeTotwIds = new Set(Object.values(totwAssignments).filter(Boolean));
 
-  [...players].sort((a, b) => { if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1; return a.name.localeCompare(b.name); })
+  // Position priority mapping (ATT -> MID -> DEF -> GK)
+  const posOrder = { att: 1, mid: 2, def: 3, gk: 4 };
+
+  [...players].sort((a, b) => { 
+    // 1. Group by Main Team vs Squad
+    if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1; 
+
+    // 2. Group by Position
+    const posA = posOrder[(a.position || "").toLowerCase()] || 99;
+    const posB = posOrder[(b.position || "").toLowerCase()] || 99;
+    if (posA !== posB) return posA - posB;
+
+    // 3. Fallback to Alphabetical order by Name
+    return a.name.localeCompare(b.name); 
+  })
     .filter(p => {
       const matchesSearch = p.name.toLowerCase().includes(query);
       const playerPos = (p.position || "").toLowerCase();
