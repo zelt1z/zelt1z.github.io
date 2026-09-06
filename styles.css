@@ -73,7 +73,10 @@ input, select { font-family: inherit; }
   margin-bottom: 22px;
   box-shadow: 0 4px 14px rgba(108, 212, 242, 0.25);
   flex-shrink: 0;
+  overflow: hidden;
+  padding: 6px;
 }
+.side-brand img { width: 100%; height: 100%; object-fit: contain; }
 
 .nav-btn {
   width: 60px;
