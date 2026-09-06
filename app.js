@@ -60,8 +60,8 @@ const views = { lineup: document.getElementById('lineupView'), stats: document.g
 const navBtns = { lineup: document.getElementById('navLineup'), stats: document.getElementById('navStats') };
 const topbarSub = document.getElementById('topbarSub');
 const SUBTITLES = {
-  lineup: "Build your matchday lineup",
-  stats: "Squad composition at a glance"
+  lineup: "Manchester City",
+  stats: "Manchester City"
 };
 
 function setTab(tab) {
