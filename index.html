@@ -279,8 +279,8 @@
     color: transparent;
   }
   .team-a { background-image: linear-gradient(90deg, #6cd4f2, #ffffff); }
-  .team-asubs { background-image: linear-gradient(90deg, #22d3c9, #3b82f6, #d946ef); }
-  .team-b { background-image: linear-gradient(90deg, #0f172a, #6d28d9, #f0abfc); }
+  .team-asubs { background-image: linear-gradient(90deg, #6497e8, #9061d9, #e6a8f0); }
+  .team-b { background-image: linear-gradient(90deg, #4c1d95, #7c3aed, #f0abfc); }
   
   .hint-bar { padding: 10px 16px; border-top: 1px solid var(--panel-border); font-size: 12px; color: var(--muted); background: var(--paper); border-radius: 0 0 14px 14px; text-align: center; flex-shrink: 0;}
 
@@ -655,7 +655,7 @@ function renderPitch() {
 
     div.appendChild(badge);
     const posLabel = document.createElement("div"); posLabel.className = "slot-pos"; posLabel.textContent = slot.label; div.appendChild(posLabel);
-    if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "slot-name " + teamClass(player.team); nameLabel.textContent = player.name; div.appendChild(nameLabel); }
+    if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "slot-name"; nameLabel.textContent = player.name; div.appendChild(nameLabel); }
 
     // Click/Drag Interaction Logic
     if (freeMode) {
