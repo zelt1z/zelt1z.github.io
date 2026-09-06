@@ -688,6 +688,35 @@ document.getElementById("discordBtn").onclick = async () => {
   } catch (e) { alert("Error taking screenshot"); btn.innerHTML = ogText; btn.disabled = false; }
 };
  
+// Resolves Roblox usernames to userIds for any player rows that have a
+// username but no valid user_id yet (e.g. rows added before this feature,
+// or edge cases where the bot's write didn't include one). Mutates the
+// passed-in players array in place.
+async function resolveMissingUserIds(playerList) {
+  const needsResolve = playerList.filter(p => !p.userId && p.username);
+  if (needsResolve.length === 0) return;
+ 
+  try {
+    const res = await fetch('https://users.roproxy.com/v1/usernames/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        usernames: needsResolve.map(p => p.username),
+        excludeBannedUsers: true
+      })
+    });
+    const data = await res.json();
+    if (!data.data) return;
+ 
+    data.data.forEach(entry => {
+      const player = needsResolve.find(p => p.username.toLowerCase() === entry.name.toLowerCase());
+      if (player) player.userId = entry.id;
+    });
+  } catch (err) {
+    console.error("Could not resolve Roblox usernames to userIds", err);
+  }
+}
+ 
 async function refreshPlayers() {
   try {
     const { data, error } = await supabaseClient
@@ -703,8 +732,11 @@ async function refreshPlayers() {
       team: p.team,
       position: p.position,
       userId: p.user_id,
+      username: p.username,
       avatar: ""
     }));
+ 
+    await resolveMissingUserIds(players);
  
     const userIds = players.map(p => p.userId).filter(Boolean).join(',');
     if (userIds) {
@@ -735,16 +767,19 @@ async function init() {
  
     if (error) throw error;
  
-    // Shape Supabase rows (id, name, team, position, user_id) into the
-    // format the rest of the app expects (id, name, team, position, userId, avatar)
+    // Shape Supabase rows (id, name, team, position, user_id, username) into
+    // the format the rest of the app expects (id, name, team, position, userId, avatar)
     players = data.map(p => ({
       id: "p" + p.id,
       name: p.name,
       team: p.team,
       position: p.position,
       userId: p.user_id,
+      username: p.username,
       avatar: ""
     }));
+ 
+    await resolveMissingUserIds(players);
  
     const userIds = players.map(p => p.userId).filter(Boolean).join(',');
  
