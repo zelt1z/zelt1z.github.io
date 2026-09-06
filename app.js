@@ -1,3 +1,8 @@
+// --- SUPABASE CONFIG ---
+const SUPABASE_URL = "https://qtqiexjcfnuqhniwmuoa.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0cWlleGpjZm51cWhuaXdtdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2OTY0NjIsImV4cCI6MjEwNDI3MjQ2Mn0.H_GnURyunPfNoKwIruCiSci-soTtMwT9btkU_3TundU";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // --- STATE & DATA ---
 const FORMATIONS = {
   5: [{ key: "1-2-1", rows: [1, 2, 1] }, { key: "1-1-2", rows: [1, 1, 2] }, { key: "2-1-1", rows: [2, 1, 1] }, { key: "1-3", rows: [1, 3] }],
@@ -684,12 +689,63 @@ document.getElementById("discordBtn").onclick = async () => {
   } catch (e) { alert("Error taking screenshot"); btn.innerHTML = ogText; btn.disabled = false; }
 };
 
+async function refreshPlayers() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('players')
+      .select('*')
+      .order('id', { ascending: true });
+
+    if (error) throw error;
+
+    players = data.map(p => ({
+      id: "p" + p.id,
+      name: p.name,
+      team: p.team,
+      position: p.position,
+      userId: p.user_id,
+      avatar: ""
+    }));
+
+    const userIds = players.map(p => p.userId).filter(Boolean).join(',');
+    if (userIds) {
+      const apiUrl = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userIds}&size=150x150&format=Png&isCircular=false`;
+      const thumbRes = await fetch(apiUrl);
+      const thumbData = await thumbRes.json();
+      thumbData.data.forEach(thumb => {
+        const player = players.find(p => p.userId === thumb.targetId);
+        if (player) player.avatar = thumb.imageUrl;
+      });
+    }
+  } catch (error) {
+    console.error("Could not refresh players from Supabase", error);
+    return;
+  }
+
+  renderRoster(currentTab === 'stats' ? 'stats' : 'lineup');
+  if (currentTab === 'lineup') { renderPitch(); renderBench(); }
+  else if (currentTab === 'stats') { renderStats(); }
+}
+
 async function init() {
   try {
-    const res = await fetch('players.json');
-    const data = await res.json();
+    const { data, error } = await supabaseClient
+      .from('players')
+      .select('*')
+      .order('id', { ascending: true });
 
-    players = data.map((p, i) => ({ id: "p" + i, ...p, avatar: "" }));
+    if (error) throw error;
+
+    // Shape Supabase rows (id, name, team, position, user_id) into the
+    // format the rest of the app expects (id, name, team, position, userId, avatar)
+    players = data.map(p => ({
+      id: "p" + p.id,
+      name: p.name,
+      team: p.team,
+      position: p.position,
+      userId: p.user_id,
+      avatar: ""
+    }));
 
     const userIds = players.map(p => p.userId).filter(Boolean).join(',');
 
@@ -706,8 +762,16 @@ async function init() {
       });
     }
   } catch (error) {
-    console.error("Could not load players.json or avatars", error);
+    console.error("Could not load players from Supabase or avatars", error);
   }
+
+  // Live updates: if the Discord bot adds/edits/removes a player, refresh automatically
+  supabaseClient
+    .channel('players-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => {
+      refreshPlayers();
+    })
+    .subscribe();
 
   try {
     const savedWebhook = localStorage.getItem("lineupPlanner_webhookUrl");
