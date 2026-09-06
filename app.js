@@ -1,8 +1,7 @@
-// --- SUPABASE CONFIG ---
 const SUPABASE_URL = "https://qtqiexjcfnuqhniwmuoa.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0cWlleGpjZm51cWhuaXdtdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2OTY0NjIsImV4cCI6MjEwNDI3MjQ2Mn0.H_GnURyunPfNoKwIruCiSci-soTtMwT9btkU_3TundU";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+ 
 // --- STATE & DATA ---
 const FORMATIONS = {
   5: [{ key: "1-2-1", rows: [1, 2, 1] }, { key: "1-1-2", rows: [1, 1, 2] }, { key: "2-1-1", rows: [2, 1, 1] }, { key: "1-3", rows: [1, 3] }],
@@ -13,7 +12,7 @@ const FORMATIONS = {
   10: [{ key: "4-3-2", rows: [4, 3, 2] }, { key: "3-4-2", rows: [3, 4, 2] }, { key: "4-4-1", rows: [4, 4, 1] }, { key: "3-3-3", rows: [3, 3, 3] }, { key: "4-2-3", rows: [4, 2, 3] }],
   11: [{ key: "4-4-2", rows: [4, 4, 2] }, { key: "4-3-3", rows: [4, 3, 3] }, { key: "3-5-2", rows: [3, 5, 2] }, { key: "4-5-1", rows: [4, 5, 1] }, { key: "3-4-3", rows: [3, 4, 3] }, { key: "5-3-2", rows: [5, 3, 2] }],
 };
-
+ 
 let players = [];
 let playerCount = 7;
 let formationKey = FORMATIONS[7][0].key;
@@ -22,16 +21,16 @@ let benchAssignments = { B0: null, B1: null, B2: null, B3: null, B4: null };
 let roles = {};
 let selectedPlayerId = null;
 let currentTab = 'lineup';
-
+ 
 // Free Mode State
 let freeMode = false;
 let customPositions = {};
-
+ 
 // Roster filter state
 const rosterState = {
   lineup: { query: "", pos: "all", team: "all" }
 };
-
+ 
 // --- TEAM HELPERS ---
 function teamLabel(team) {
   if (team === "a") return "A Team";
@@ -59,7 +58,7 @@ function posClass(pos) {
   if (p === "gk") return "pos-gk";
   return "";
 }
-
+ 
 // --- NAV / TABS LOGIC ---
 const views = { lineup: document.getElementById('lineupView'), stats: document.getElementById('statsView') };
 const navBtns = { lineup: document.getElementById('navLineup'), stats: document.getElementById('navStats') };
@@ -68,29 +67,29 @@ const SUBTITLES = {
   lineup: "Manchester City",
   stats: "Manchester City"
 };
-
+ 
 function setTab(tab) {
   currentTab = tab;
   Object.keys(views).forEach(k => views[k].classList.toggle('visible', k === tab));
   Object.keys(navBtns).forEach(k => navBtns[k].classList.toggle('active', k === tab));
   topbarSub.textContent = SUBTITLES[tab];
-
+ 
   document.getElementById('lineupControls1').style.display = (tab === 'lineup') ? 'flex' : 'none';
   document.getElementById('lineupControls2').style.display = (tab === 'lineup') ? 'flex' : 'none';
-
+ 
   if (tab === 'lineup') { renderRoster('lineup'); }
   else if (tab === 'stats') { renderStats(); }
 }
 navBtns.lineup.onclick = () => setTab('lineup');
 navBtns.stats.onclick = () => setTab('stats');
-
+ 
 // Match details bindings
 const ids = ['matchNameIn', 'matchTypeIn', 'matchTimeIn'];
 const outs = ['outName', 'outType', 'outTime'];
 ids.forEach((id, i) => {
   document.getElementById(id).addEventListener('input', (e) => { document.getElementById(outs[i]).textContent = e.target.value; });
 });
-
+ 
 function buildSlots(rows) {
   const slots = [{ id: "GK", label: "GK", row: 0 }];
   const totalRows = rows.length;
@@ -101,7 +100,7 @@ function buildSlots(rows) {
   });
   return slots;
 }
-
+ 
 function rowLabel(rowIndex, totalRows) {
   if (totalRows === 1) return "FWD";
   if (rowIndex === 0) return "DEF";
@@ -109,7 +108,7 @@ function rowLabel(rowIndex, totalRows) {
   if (totalRows === 2) return rowIndex === 0 ? "DEF" : "FWD";
   return "MID";
 }
-
+ 
 function computeCoords(rows) {
   const totalRows = rows.length;
   const coords = { "GK": { x: 150, y: 360 } };
@@ -120,7 +119,7 @@ function computeCoords(rows) {
   });
   return coords;
 }
-
+ 
 function renderPlayerCountOptions() {
   const sel = document.getElementById("playerCount");
   sel.innerHTML = "";
@@ -129,7 +128,7 @@ function renderPlayerCountOptions() {
     if (n === playerCount) opt.selected = true; sel.appendChild(opt);
   });
 }
-
+ 
 function renderFormationOptions() {
   const sel = document.getElementById("formationSelect");
   sel.innerHTML = "";
@@ -138,26 +137,26 @@ function renderFormationOptions() {
     if (f.key === formationKey) opt.selected = true; sel.appendChild(opt);
   });
 }
-
+ 
 function currentFormation() {
   return FORMATIONS[playerCount].find(f => f.key === formationKey) || FORMATIONS[playerCount][0];
 }
-
+ 
 function renderPitch() {
   const formation = currentFormation();
   const slots = buildSlots(formation.rows);
   const coords = computeCoords(formation.rows);
   const layer = document.getElementById("slotsLayer");
   layer.innerHTML = "";
-
+ 
   const validIds = new Set(slots.map(s => s.id));
   Object.keys(assignments).forEach(slotId => {
     if (!validIds.has(slotId)) { delete assignments[slotId]; delete roles[slotId]; }
   });
-
+ 
   slots.forEach(slot => {
     const div = document.createElement("div"); div.className = "slot";
-
+ 
     if (freeMode && customPositions[slot.id]) {
       div.style.left = customPositions[slot.id].xPerc + "%";
       div.style.top = customPositions[slot.id].yPerc + "%";
@@ -166,11 +165,11 @@ function renderPitch() {
       div.style.left = (coord.x / 300 * 100) + "%";
       div.style.top = (coord.y / 400 * 100) + "%";
     }
-
+ 
     const playerId = assignments[slot.id];
     const player = playerId ? players.find(p => p.id === playerId) : null;
     const badge = document.createElement("div"); badge.className = "slot-badge";
-
+ 
     if (player) {
       div.classList.add("filled");
       if (player.avatar) {
@@ -187,23 +186,23 @@ function renderPitch() {
     } else {
       const icon = document.createElement("div"); icon.className = "empty-icon"; icon.textContent = "+"; badge.appendChild(icon);
     }
-
+ 
     div.appendChild(badge);
     const posLabel = document.createElement("div"); posLabel.className = "slot-pos"; posLabel.textContent = slot.label; div.appendChild(posLabel);
     if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "slot-name"; nameLabel.textContent = player.name; div.appendChild(nameLabel); }
-
+ 
     if (freeMode) {
       div.style.cursor = "grab";
       let isDragging = false;
       let startX, startY;
-
+ 
       div.onpointerdown = (e) => {
         if (e.button !== 0 && e.pointerType === 'mouse') return;
         isDragging = false;
         startX = e.clientX;
         startY = e.clientY;
         div.setPointerCapture(e.pointerId);
-
+ 
         div.onpointermove = (ev) => {
           const dx = ev.clientX - startX;
           const dy = ev.clientY - startY;
@@ -217,13 +216,13 @@ function renderPitch() {
             let posY = ((ev.clientY - pitchRect.top) / pitchRect.height) * 100;
             posX = Math.max(4, Math.min(96, posX));
             posY = Math.max(4, Math.min(96, posY));
-
+ 
             customPositions[slot.id] = { xPerc: posX, yPerc: posY };
             div.style.left = posX + "%";
             div.style.top = posY + "%";
           }
         };
-
+ 
         div.onpointerup = (ev) => {
           try { div.releasePointerCapture(ev.pointerId); } catch (err) {}
           div.onpointermove = null;
@@ -237,7 +236,7 @@ function renderPitch() {
     } else {
       div.onclick = () => onSlotClick(slot.id);
     }
-
+ 
     div.oncontextmenu = (e) => {
       e.preventDefault(); e.stopPropagation();
       if (!player) return;
@@ -246,11 +245,11 @@ function renderPitch() {
       else roles[slot.id] = 'C';
       renderPitch();
     };
-
+ 
     layer.appendChild(div);
   });
 }
-
+ 
 function renderBench() {
   const layer = document.getElementById("benchSlotsLayer");
   layer.innerHTML = "";
@@ -259,13 +258,13 @@ function renderBench() {
     const playerId = benchAssignments[slotId];
     const player = playerId ? players.find(p => p.id === playerId) : null;
     const badge = document.createElement("div"); badge.className = "bench-badge";
-
+ 
     if (player) {
       div.classList.add("filled");
       if (player.avatar) {
         const img = document.createElement("img"); img.src = player.avatar; badge.appendChild(img);
       } else { badge.textContent = initials(player.name); badge.style.color = "#fff"; badge.style.fontWeight = "700"; badge.style.fontSize = "13px"; }
-
+ 
       const removeX = document.createElement("div"); removeX.className = "bench-remove-x"; removeX.textContent = "×";
       removeX.onclick = (e) => { e.stopPropagation(); benchAssignments[slotId] = null; renderBench(); renderRoster('lineup'); };
       div.appendChild(removeX);
@@ -278,7 +277,7 @@ function renderBench() {
     layer.appendChild(div);
   });
 }
-
+ 
 // --- CLICK ASSIGNMENTS ---
 function onBenchSlotClick(slotId) {
   if (selectedPlayerId) {
@@ -291,7 +290,7 @@ function onBenchSlotClick(slotId) {
     renderPitch(); renderBench(); renderRoster('lineup');
   }
 }
-
+ 
 function onSlotClick(slotId) {
   if (selectedPlayerId) {
     Object.keys(assignments).forEach(sid => { if (assignments[sid] === selectedPlayerId) { delete assignments[sid]; delete roles[sid]; } });
@@ -303,23 +302,23 @@ function onSlotClick(slotId) {
     renderPitch(); renderBench(); renderRoster('lineup');
   }
 }
-
+ 
 function initials(name) { return name.trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase(); }
-
+ 
 // --- ROSTER PANEL ---
 const rosterTemplate = document.getElementById('rosterTemplate');
 const rosterMounts = {
   lineup: document.getElementById('rosterPanelLineup')
 };
-
+ 
 function initRosterPanel(key) {
   const mount = rosterMounts[key];
   mount.appendChild(rosterTemplate.content.cloneNode(true));
-
+ 
   const searchEl = mount.querySelector('.roster-search');
   const posEl = mount.querySelector('.roster-pos-select');
   const teamBtns = mount.querySelectorAll('.rtt-btn');
-
+ 
   searchEl.oninput = () => { rosterState[key].query = searchEl.value.trim().toLowerCase(); renderRoster(key); };
   posEl.onchange = () => { rosterState[key].pos = posEl.value.toLowerCase(); renderRoster(key); };
   teamBtns.forEach(btn => {
@@ -332,26 +331,26 @@ function initRosterPanel(key) {
   });
 }
 initRosterPanel('lineup');
-
+ 
 function renderRoster(key) {
   const mount = rosterMounts[key];
   const list = mount.querySelector('.roster-list');
   const state = rosterState[key];
   list.innerHTML = "";
-
+ 
   const placedIds = new Set([...Object.values(assignments), ...Object.values(benchAssignments).filter(Boolean)]);
   const benchIds = new Set(Object.values(benchAssignments).filter(Boolean));
-
+ 
   const posOrder = { att: 1, mid: 2, def: 3, gk: 4 };
-
+ 
   [...players].sort((a, b) => {
     const teamA = teamOrder(a.team), teamB = teamOrder(b.team);
     if (teamA !== teamB) return teamA - teamB;
-
+ 
     const posA = posOrder[(a.position || "").toLowerCase()] || 99;
     const posB = posOrder[(b.position || "").toLowerCase()] || 99;
     if (posA !== posB) return posA - posB;
-
+ 
     return a.name.localeCompare(b.name);
   })
     .filter(p => {
@@ -364,32 +363,32 @@ function renderRoster(key) {
     .forEach(p => {
       const item = document.createElement("div"); item.className = "roster-item";
       if (p.id === selectedPlayerId) item.classList.add("selected");
-
+ 
       let statusText = teamLabel(p.team);
       if (benchIds.has(p.id)) { statusText = "On bench"; item.classList.add("placed"); }
       else if (placedIds.has(p.id)) { statusText = "On pitch"; item.classList.add("placed"); }
-
+ 
       const avatarCol = document.createElement("div"); avatarCol.className = "roster-avatar-col";
       const img = document.createElement("img"); img.className = "roster-avatar";
       if (p.avatar) img.src = p.avatar;
       avatarCol.appendChild(img);
-
+ 
       if (p.position) {
         const posBadge = document.createElement("span");
         posBadge.className = "roster-pos-badge " + posClass(p.position);
         posBadge.textContent = p.position.toUpperCase();
         avatarCol.appendChild(posBadge);
       }
-
+ 
       const info = document.createElement("div"); info.className = "roster-info";
       const nameRow = document.createElement("div"); nameRow.className = "roster-name-row";
       const nameEl = document.createElement("div"); nameEl.className = "roster-name " + teamClass(p.team); nameEl.textContent = p.name;
       nameRow.appendChild(nameEl);
       const tagEl = document.createElement("div"); tagEl.className = "roster-tag"; tagEl.textContent = statusText;
-
+ 
       info.appendChild(nameRow); info.appendChild(tagEl);
       item.appendChild(avatarCol); item.appendChild(info);
-
+ 
       item.onclick = () => {
         selectedPlayerId = (selectedPlayerId === p.id) ? null : p.id;
         renderRoster(key);
@@ -398,18 +397,18 @@ function renderRoster(key) {
       list.appendChild(item);
     });
 }
-
+ 
 // --- STATS VIEW ---
 function renderStats() {
   const mount = document.getElementById('statsScroll');
   const posOrder = ['att', 'mid', 'def', 'gk'];
   const posNames = { att: 'Attackers', mid: 'Midfielders', def: 'Defenders', gk: 'Goalkeepers' };
   const posColors = { att: 'var(--pos-att)', mid: 'var(--pos-mid)', def: 'var(--pos-def)', gk: 'var(--pos-gk)' };
-
+ 
   const total = players.length;
   const counts = { att: 0, mid: 0, def: 0, gk: 0, other: 0 };
   const teamCounts = { a: { att: 0, mid: 0, def: 0, gk: 0, other: 0, total: 0 }, asubs: { att: 0, mid: 0, def: 0, gk: 0, other: 0, total: 0 }, b: { att: 0, mid: 0, def: 0, gk: 0, other: 0, total: 0 } };
-
+ 
   players.forEach(p => {
     const pos = (p.position || "").toLowerCase();
     const bucket = counts.hasOwnProperty(pos) ? pos : 'other';
@@ -420,26 +419,26 @@ function renderStats() {
       teamCounts[p.team][tb]++;
     }
   });
-
+ 
   const maxCount = Math.max(counts.att, counts.mid, counts.def, counts.gk, 1);
-
+ 
   // Most common position (excludes 'other')
   const posEntries = posOrder.map(k => [k, counts[k]]);
   const mostCommon = posEntries.reduce((a, b) => (b[1] > a[1] ? b : a));
-
+ 
   // Position that lacks players the most, excluding GK per user's request
   const outfieldEntries = posEntries.filter(([k]) => k !== 'gk');
   const leastCommon = outfieldEntries.reduce((a, b) => (b[1] < a[1] ? b : a));
-
+ 
   const teamA = teamCounts.a.total, teamASubs = teamCounts.asubs.total, teamB = teamCounts.b.total;
   const withAvatar = players.filter(p => p.avatar).length;
   const noUserId = players.filter(p => !p.userId).length;
-
+ 
   mount.innerHTML = "";
-
+ 
   // --- Top stat cards ---
   const topGrid = document.createElement('div'); topGrid.className = 'stats-grid-top';
-
+ 
   topGrid.appendChild(statCard({
     hero: true,
     icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -447,30 +446,30 @@ function renderStats() {
     label: 'Total players',
     sub: `${teamA} A Team · ${teamASubs} Subs · ${teamB} Academy`
   }));
-
+ 
   topGrid.appendChild(statCard({
     icon: '<path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/>',
     value: posNames[mostCommon[0]],
     label: 'Most common position',
     sub: `${mostCommon[1]} of ${total} players (${Math.round(mostCommon[1] / total * 100)}%)`
   }));
-
+ 
   topGrid.appendChild(statCard({
     icon: '<path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0z"/>',
     value: posNames[leastCommon[0]],
     label: 'Thinnest on numbers',
     sub: `Only ${leastCommon[1]} outfield ${leastCommon[1] === 1 ? 'player' : 'players'}, GKs excluded`
   }));
-
+ 
   topGrid.appendChild(statCard({
     icon: '<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/>',
     value: String(withAvatar),
     label: 'Avatars loaded',
     sub: noUserId > 0 ? `${noUserId} missing a Roblox ID` : 'All players have a Roblox ID'
   }));
-
+ 
   mount.appendChild(topGrid);
-
+ 
   // --- Position breakdown ---
   const posSection = document.createElement('div'); posSection.className = 'stats-section';
   posSection.innerHTML = `<h3>Position breakdown</h3><p class="section-sub">Distribution across the entire squad, all teams combined.</p>`;
@@ -486,7 +485,7 @@ function renderStats() {
   });
   posSection.appendChild(barsWrap);
   mount.appendChild(posSection);
-
+ 
   // --- Team split ---
   const teamSection = document.createElement('div'); teamSection.className = 'stats-section';
   teamSection.innerHTML = `<h3>Squad split by team</h3><p class="section-sub">How the roster breaks down across A Team, Subs, and Academy.</p>`;
@@ -508,19 +507,19 @@ function renderStats() {
   });
   teamSection.appendChild(splitGrid);
   mount.appendChild(teamSection);
-
+ 
   // --- Insights ---
   const insightSection = document.createElement('div'); insightSection.className = 'stats-section';
   insightSection.innerHTML = `<h3>Squad insights</h3><p class="section-sub">A few quick notes worth knowing.</p>`;
   const insightList = document.createElement('div'); insightList.className = 'insight-list';
-
+ 
   const insights = [];
   insights.push({ tone: 'ok', icon: '⚽', html: `<b>${posNames[mostCommon[0]]}</b> are the deepest position group with ${mostCommon[1]} players.` });
   insights.push({ tone: 'warn', icon: '⚠️', html: `<b>${posNames[leastCommon[0]]}</b> is your shallowest outfield position, only ${leastCommon[1]} available.` });
   if (teamCounts.a.gk < 2) insights.push({ tone: 'warn', icon: '🧤', html: `A Team has just <b>${teamCounts.a.gk}</b> recognised goalkeeper${teamCounts.a.gk === 1 ? '' : 's'}, worth keeping an eye on.` });
   if (noUserId > 0) insights.push({ tone: 'warn', icon: '🆔', html: `<b>${noUserId} player${noUserId === 1 ? '' : 's'}</b> ${noUserId === 1 ? 'is' : 'are'} missing a Roblox ID, so avatars fall back to initials.` });
   insights.push({ tone: 'gold', icon: '🏟️', html: `<b>${teamA}</b> players make up the A Team, backed by <b>${teamASubs}</b> subs and <b>${teamB}</b> in the Academy pipeline.` });
-
+ 
   insights.forEach(ins => {
     const row = document.createElement('div'); row.className = 'insight-row ' + ins.tone;
     row.innerHTML = `<div class="insight-icon">${ins.icon}</div><div class="insight-text">${ins.html}</div>`;
@@ -529,7 +528,7 @@ function renderStats() {
   insightSection.appendChild(insightList);
   mount.appendChild(insightSection);
 }
-
+ 
 function statCard({ hero, icon, value, label, sub }) {
   const card = document.createElement('div'); card.className = 'stat-card' + (hero ? ' hero' : '');
   card.innerHTML = `
@@ -540,7 +539,7 @@ function statCard({ hero, icon, value, label, sub }) {
   `;
   return card;
 }
-
+ 
 // --- Header control bindings ---
 document.getElementById("logoSelect").onchange = (e) => { document.getElementById("pitchLogo").src = e.target.value; };
 document.getElementById("playerCount").onchange = (e) => {
@@ -560,7 +559,7 @@ document.getElementById("clearBtn").onclick = () => {
   selectedPlayerId = null;
   renderPitch(); renderBench(); renderRoster('lineup');
 };
-
+ 
 // Free Mode Button Handler
 const freeModeBtn = document.getElementById("freeModeBtn");
 freeModeBtn.onclick = () => {
@@ -580,23 +579,23 @@ freeModeBtn.onclick = () => {
   }
   renderPitch();
 };
-
+ 
 // --- DRAWING MODE LOGIC ---
 const drawingCanvas = document.getElementById('drawingCanvas');
 const ctx = drawingCanvas.getContext('2d');
 let isDrawingMode = false; let isDrawing = false; let drawHistory = [];
-
+ 
 ctx.strokeStyle = '#ffff00'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-
+ 
 document.getElementById('drawToggleBtn').onclick = (e) => {
   isDrawingMode = !isDrawingMode;
   e.target.textContent = isDrawingMode ? "Draw: on" : "Draw: off";
   e.target.classList.toggle('active', isDrawingMode);
   if (isDrawingMode) drawingCanvas.classList.add('active'); else drawingCanvas.classList.remove('active');
 };
-
+ 
 document.getElementById('clearDrawBtn').onclick = () => { ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); drawHistory = []; };
-
+ 
 function getDrawPos(e) {
   const rect = drawingCanvas.getBoundingClientRect();
   const scaleX = drawingCanvas.width / rect.width;
@@ -605,7 +604,7 @@ function getDrawPos(e) {
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
 }
-
+ 
 function startDrawing(e) {
   if (!isDrawingMode) return;
   e.preventDefault();
@@ -615,16 +614,16 @@ function startDrawing(e) {
   const pos = getDrawPos(e);
   ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
 }
-
+ 
 function drawPointer(e) {
   if (!isDrawing || !isDrawingMode) return;
   e.preventDefault();
   const pos = getDrawPos(e);
   ctx.lineTo(pos.x, pos.y); ctx.stroke();
 }
-
+ 
 function stopDrawing() { isDrawing = false; }
-
+ 
 window.addEventListener('keydown', (e) => {
   if (isDrawingMode && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
     e.preventDefault();
@@ -632,14 +631,14 @@ window.addEventListener('keydown', (e) => {
     else { ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); }
   }
 });
-
+ 
 drawingCanvas.addEventListener('mousedown', startDrawing); drawingCanvas.addEventListener('mousemove', drawPointer); window.addEventListener('mouseup', stopDrawing);
 drawingCanvas.addEventListener('touchstart', startDrawing, { passive: false }); drawingCanvas.addEventListener('touchmove', drawPointer, { passive: false }); window.addEventListener('touchend', stopDrawing);
-
+ 
 document.getElementById("webhookUrl").addEventListener("input", (e) => {
   try { localStorage.setItem("lineupPlanner_webhookUrl", e.target.value.trim()); } catch (err) {}
 });
-
+ 
 // EXPORT FUNCTION
 async function generateCanvas() {
   const captureElement = document.getElementById("captureArea");
@@ -653,7 +652,7 @@ async function generateCanvas() {
   captureElement.classList.remove('export-mode');
   return canvas;
 }
-
+ 
 document.getElementById("downloadBtn").onclick = async () => {
   const btn = document.getElementById("downloadBtn"); btn.textContent = "Saving...";
   const canvas = await generateCanvas();
@@ -661,15 +660,15 @@ document.getElementById("downloadBtn").onclick = async () => {
   const link = document.createElement("a"); link.download = teamName + "-lineup.png"; link.href = canvas.toDataURL("image/png"); link.click();
   btn.textContent = "Save image";
 };
-
+ 
 function absoluteUrl(path) { try { return new URL(path, window.location.href).href; } catch (e) { return path; } }
 const CORS_RELAY = "https://corsproxy.io/?url=";
-
+ 
 async function postToDiscord(webhookUrl, formData) {
   try { return await fetch(webhookUrl, { method: 'POST', body: formData }); }
   catch (directErr) { return await fetch(CORS_RELAY + encodeURIComponent(webhookUrl), { method: 'POST', body: formData }); }
 }
-
+ 
 document.getElementById("discordBtn").onclick = async () => {
   const webhookUrl = document.getElementById("webhookUrl").value.trim();
   if (!webhookUrl) { alert("Please paste a Discord Webhook URL in the top right box first!"); return; }
@@ -688,16 +687,16 @@ document.getElementById("discordBtn").onclick = async () => {
     });
   } catch (e) { alert("Error taking screenshot"); btn.innerHTML = ogText; btn.disabled = false; }
 };
-
+ 
 async function refreshPlayers() {
   try {
     const { data, error } = await supabaseClient
       .from('players')
       .select('*')
       .order('id', { ascending: true });
-
+ 
     if (error) throw error;
-
+ 
     players = data.map(p => ({
       id: "p" + p.id,
       name: p.name,
@@ -706,7 +705,7 @@ async function refreshPlayers() {
       userId: p.user_id,
       avatar: ""
     }));
-
+ 
     const userIds = players.map(p => p.userId).filter(Boolean).join(',');
     if (userIds) {
       const apiUrl = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userIds}&size=150x150&format=Png&isCircular=false`;
@@ -721,21 +720,21 @@ async function refreshPlayers() {
     console.error("Could not refresh players from Supabase", error);
     return;
   }
-
+ 
   renderRoster(currentTab === 'stats' ? 'stats' : 'lineup');
   if (currentTab === 'lineup') { renderPitch(); renderBench(); }
   else if (currentTab === 'stats') { renderStats(); }
 }
-
+ 
 async function init() {
   try {
     const { data, error } = await supabaseClient
       .from('players')
       .select('*')
       .order('id', { ascending: true });
-
+ 
     if (error) throw error;
-
+ 
     // Shape Supabase rows (id, name, team, position, user_id) into the
     // format the rest of the app expects (id, name, team, position, userId, avatar)
     players = data.map(p => ({
@@ -746,14 +745,14 @@ async function init() {
       userId: p.user_id,
       avatar: ""
     }));
-
+ 
     const userIds = players.map(p => p.userId).filter(Boolean).join(',');
-
+ 
     if (userIds) {
       const apiUrl = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userIds}&size=150x150&format=Png&isCircular=false`;
       const thumbRes = await fetch(apiUrl);
       const thumbData = await thumbRes.json();
-
+ 
       thumbData.data.forEach(thumb => {
         const player = players.find(p => p.userId === thumb.targetId);
         if (player) {
@@ -764,7 +763,7 @@ async function init() {
   } catch (error) {
     console.error("Could not load players from Supabase or avatars", error);
   }
-
+ 
   // Live updates: if the Discord bot adds/edits/removes a player, refresh automatically
   supabaseClient
     .channel('players-changes')
@@ -772,12 +771,12 @@ async function init() {
       refreshPlayers();
     })
     .subscribe();
-
+ 
   try {
     const savedWebhook = localStorage.getItem("lineupPlanner_webhookUrl");
     if (savedWebhook) document.getElementById("webhookUrl").value = savedWebhook;
   } catch (e) { console.warn("Could not read saved webhook:", e); }
-
+ 
   renderPlayerCountOptions(); renderFormationOptions(); renderPitch(); renderBench();
   renderRoster('lineup');
 }
