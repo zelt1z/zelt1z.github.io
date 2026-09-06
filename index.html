@@ -269,8 +269,22 @@
   .roster-info { min-width: 0; flex: 1; }
   .roster-name-row { display: flex; align-items: center; gap: 4px; }
   .roster-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .roster-name.main-team { color: #dcb336; } 
   .roster-tag { font-size: 10.5px; color: var(--muted); }
+
+  /* Team-based name gradients */
+  .team-a, .team-asubs, .team-b {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .team-a { background-image: linear-gradient(90deg, #6cd4f2, #ffffff); }
+  .team-asubs { background-image: linear-gradient(90deg, #7ab8ff, #b26bff, #ffb3e6); }
+  .team-b { background-image: linear-gradient(90deg, #16214a, #7a3fd1, #cda6f7); }
+
+  .roster-tag.team-a-tag { color: #6cd4f2; }
+  .roster-tag.team-asubs-tag { color: #b28cff; }
+  .roster-tag.team-b-tag { color: #9a6fe0; }
   
   .hint-bar { padding: 10px 16px; border-top: 1px solid var(--panel-border); font-size: 12px; color: var(--muted); background: var(--paper); border-radius: 0 0 14px 14px; text-align: center; flex-shrink: 0;}
 
@@ -645,7 +659,7 @@ function renderPitch() {
 
     div.appendChild(badge);
     const posLabel = document.createElement("div"); posLabel.className = "slot-pos"; posLabel.textContent = slot.label; div.appendChild(posLabel);
-    if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "slot-name" + (player.mainTeam ? " main-team" : ""); nameLabel.textContent = player.name; div.appendChild(nameLabel); }
+    if (player) { const nameLabel = document.createElement("div"); nameLabel.className = "slot-name " + teamClass(player.team); nameLabel.textContent = player.name; div.appendChild(nameLabel); }
 
     // Click/Drag Interaction Logic
     if (freeMode) {
@@ -818,6 +832,26 @@ function onSlotClick(slotId) {
 
 function initials(name) { return name.trim().split(/\s+/).map(w => w[0]).join("").slice(0,2).toUpperCase(); }
 
+// Team helpers: maps "a" / "asubs" / "b" to display labels and CSS classes
+function teamLabel(team) {
+  if (team === "a") return "A Team";
+  if (team === "asubs") return "A Team Subs";
+  if (team === "b") return "Academy";
+  return "";
+}
+function teamClass(team) {
+  if (team === "a") return "team-a";
+  if (team === "asubs") return "team-asubs";
+  if (team === "b") return "team-b";
+  return "";
+}
+function teamOrder(team) {
+  if (team === "a") return 0;
+  if (team === "asubs") return 1;
+  if (team === "b") return 2;
+  return 99;
+}
+
 function renderRoster() {
   const list = document.getElementById("rosterList");
   const query = document.getElementById("rosterSearch").value.trim().toLowerCase();
@@ -832,8 +866,9 @@ function renderRoster() {
   const posOrder = { att: 1, mid: 2, def: 3, gk: 4 };
 
   [...players].sort((a, b) => { 
-    // 1. Group by Main Team vs Squad
-    if (a.mainTeam !== b.mainTeam) return a.mainTeam ? -1 : 1; 
+    // 1. Group by Team (A Team -> A Team Subs -> Academy)
+    const teamA = teamOrder(a.team), teamB = teamOrder(b.team);
+    if (teamA !== teamB) return teamA - teamB;
 
     // 2. Group by Position
     const posA = posOrder[(a.position || "").toLowerCase()] || 99;
@@ -853,7 +888,8 @@ function renderRoster() {
       const item = document.createElement("div"); item.className = "roster-item";
       if (p.id === selectedPlayerId) item.classList.add("selected");
       
-      let statusText = p.mainTeam ? "Main Team" : "Squad";
+      let statusText = teamLabel(p.team);
+      let statusTagClass = teamClass(p.team) ? (teamClass(p.team) + "-tag") : "";
       if (currentTab === 'totw') {
         if (activeTotwIds.has(p.id)) { statusText = "Player of the Week"; item.classList.add("placed"); }
       } else {
@@ -876,9 +912,9 @@ function renderRoster() {
       
       const info = document.createElement("div"); info.className = "roster-info";
       const nameRow = document.createElement("div"); nameRow.className = "roster-name-row";
-      const nameEl = document.createElement("div"); nameEl.className = "roster-name" + (p.mainTeam ? " main-team" : ""); nameEl.textContent = p.name;
+      const nameEl = document.createElement("div"); nameEl.className = "roster-name " + teamClass(p.team); nameEl.textContent = p.name;
       nameRow.appendChild(nameEl);
-      const tagEl = document.createElement("div"); tagEl.className = "roster-tag"; tagEl.textContent = statusText;
+      const tagEl = document.createElement("div"); tagEl.className = "roster-tag " + statusTagClass; tagEl.textContent = statusText;
       
       info.appendChild(nameRow); info.appendChild(tagEl);
       item.appendChild(avatarCol); item.appendChild(info);
